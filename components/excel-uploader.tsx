@@ -13,7 +13,7 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
   const [isUploading, setIsUploading] = useState(false);
   const [lastUploadedInfo, setLastUploadedInfo] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { setCurrentMonthly } = useClosingStore();
+  const { setCurrentMonthly, setMonthlyList, setVatList } = useClosingStore();
 
   const handleUpload = async (file: File) => {
     if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
@@ -35,8 +35,11 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
         return;
       }
 
-      // 최신 월마감 데이터를 현재 스토어에 즉시 주입
+      // 1. 전체 월마감 목록 및 부가세 목록을 스토어에 동기화
       if (monthly.length > 0) {
+        setMonthlyList(monthly);
+
+        // 최신 월마감 데이터를 현재 입력 폼에 즉시 로드
         const latest = monthly[monthly.length - 1];
         setCurrentMonthly({
           year: latest.year,
@@ -50,6 +53,19 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
         });
       }
 
+      if (vat.length > 0) {
+        setVatList(vat);
+      }
+
+      // 서버 API가 있으면 전송도 시도
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        fetch('/api/upload-excel', { method: 'POST', body: formData });
+      } catch {
+        // 정적 환경 에러 무시
+      }
+
       toast.success(`엑셀 파싱이 완료되었습니다! (월마감 ${monthly.length}건, 부가세 ${vat.length}건)`);
       setLastUploadedInfo({
         fileName: file.name,
@@ -57,10 +73,11 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
         vatCount: vat.length,
         time: new Date().toLocaleTimeString(),
       });
+
       onUploaded?.();
     } catch (error: any) {
-      console.error(error);
-      toast.error('엑셀 처리 중 오류가 발생했습니다.');
+      console.error('[Excel Upload Error]', error);
+      toast.error(`엑셀 처리 중 오류: ${error?.message || error}`);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -85,7 +102,7 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
               엑셀 원본 파일 업로드
             </CardTitle>
             <CardDescription className="mt-1">
-              기존에 사용하시던 본사 마감 엑셀 파일을 업로드하면 자동으로 파싱하여 계산기에 즉시 반영합니다.
+              기존에 사용하시던 본사 마감 엑셀 파일을 업로드하면 자동으로 파싱하여 모든 탭(월마감, 부가세, 히스토리, 대시보드)에 즉시 반영합니다.
             </CardDescription>
           </div>
           <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
