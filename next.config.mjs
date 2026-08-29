@@ -2,12 +2,11 @@
 const nextConfig = {
   output: 'export',
   basePath: '/jungwon',
+  assetPrefix: '/jungwon/',
   images: {
     unoptimized: true,
   },
-  experimental: {
-    serverComponentsExternalPackages: ['exceljs'],
-  },
+  trailingSlash: true,
 };
 
 export default nextConfig;
