@@ -63,9 +63,8 @@ export const useClosingStore = create<StoreState>((set, get) => ({
     incentive: 778182,
     headquartersDeposit: 25000000,
     accounts: [
-      { name: '농협', amount: 19774077 },
+      { name: '농협', amount: 18652077 },
       { name: '기업은행', amount: 19573305 },
-      { name: '국민은행', amount: 9351546 },
     ],
   },
   monthlyList: loadLocal(LOCAL_KEY_MONTHLY, [
@@ -80,12 +79,11 @@ export const useClosingStore = create<StoreState>((set, get) => ({
       headquartersDeposit: 25000000,
       closingAmount: 48698928,
       accounts: [
-        { name: '농협', amount: 19774077 },
+        { name: '농협', amount: 18652077 },
         { name: '기업은행', amount: 19573305 },
-        { name: '국민은행', amount: 9351546 },
       ],
-      bankTotal: 48698928,
-      difference: 0,
+      bankTotal: 38225382,
+      difference: 10473546,
       rawExcelSheetName: '  26년 08월',
     },
   ]),
