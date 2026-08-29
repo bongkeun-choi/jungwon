@@ -38,14 +38,12 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* 우측 공식 호환 & 국민 계좌 캡슐 */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="bg-slate-900 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm">
-              Excel 공식 100% 호환
-            </div>
-            <div className="border border-slate-200 bg-slate-50/70 text-slate-700 text-xs font-mono px-3.5 py-1.5 rounded-xl hidden sm:block">
+          {/* 우측 계좌 안내 (크고 선명하게) */}
+          <div className="flex items-center gap-2.5 bg-slate-950 text-white px-4 py-2 rounded-xl shadow-sm border border-slate-800">
+            <span className="text-xs text-slate-300 font-medium">지정 입금계좌</span>
+            <span className="text-sm sm:text-base font-bold font-mono text-amber-400 tracking-wide">
               국민 3001-9029-00536-1
-            </div>
+            </span>
           </div>
         </div>
       </header>
