@@ -2,18 +2,18 @@
 
 import React, { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { UploadCloud, FileSpreadsheet, CheckCircle2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClosingStore } from '@/hooks/use-closing';
+import { parseOriginalExcel } from '@/lib/excel/parser';
 
 export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [lastUploadedInfo, setLastUploadedInfo] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { fetchMonthlyList, fetchVatList } = useClosingStore();
+  const { setCurrentMonthly } = useClosingStore();
 
   const handleUpload = async (file: File) => {
     if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
@@ -22,33 +22,45 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
     }
 
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
 
     try {
-      const res = await fetch('/api/upload-excel', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
 
-      if (res.ok && data.success) {
-        toast.success(`엑셀 파싱 및 Turso DB 저장이 완료되었습니다! (월마감 ${data.monthlyCount}건, 부가세 ${data.vatCount}건)`);
-        setLastUploadedInfo({
-          fileName: file.name,
-          monthlyCount: data.monthlyCount,
-          vatCount: data.vatCount,
-          githubBackup: data.githubBackup,
-          time: new Date().toLocaleTimeString(),
-        });
-        await fetchMonthlyList();
-        await fetchVatList();
-        onUploaded?.();
-      } else {
-        toast.error(data.error || '엑셀 업로드 처리에 실패했습니다.');
+      // 브라우저에서 직접 ExcelJS 파싱 실행
+      const { monthly, vat } = await parseOriginalExcel(buffer);
+
+      if (monthly.length === 0 && vat.length === 0) {
+        toast.error('엑셀에서 월마감 또는 부가세 시트를 인식하지 못했습니다.');
+        return;
       }
+
+      // 최신 월마감 데이터를 현재 스토어에 즉시 주입
+      if (monthly.length > 0) {
+        const latest = monthly[monthly.length - 1];
+        setCurrentMonthly({
+          year: latest.year,
+          month: latest.month,
+          purchaseAmount: latest.purchaseAmount,
+          serviceAs: latest.serviceAs,
+          point: latest.point,
+          incentive: latest.incentive,
+          headquartersDeposit: latest.headquartersDeposit,
+          accounts: latest.accounts || [],
+        });
+      }
+
+      toast.success(`엑셀 파싱이 완료되었습니다! (월마감 ${monthly.length}건, 부가세 ${vat.length}건)`);
+      setLastUploadedInfo({
+        fileName: file.name,
+        monthlyCount: monthly.length,
+        vatCount: vat.length,
+        time: new Date().toLocaleTimeString(),
+      });
+      onUploaded?.();
     } catch (error: any) {
-      toast.error('업로드 중 네트워크 오류가 발생했습니다.');
+      console.error(error);
+      toast.error('엑셀 처리 중 오류가 발생했습니다.');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -73,11 +85,11 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
               엑셀 원본 파일 업로드
             </CardTitle>
             <CardDescription className="mt-1">
-              기존에 사용하시던 본사 마감 엑셀 파일을 업로드하면 자동으로 파싱하여 Turso DB에 저장하고 서식을 보존합니다.
+              기존에 사용하시던 본사 마감 엑셀 파일을 업로드하면 자동으로 파싱하여 계산기에 즉시 반영합니다.
             </CardDescription>
           </div>
           <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
-            ExcelJS 서식 보존 지원
+            ExcelJS 정밀 파서 적용
           </Badge>
         </div>
       </CardHeader>
@@ -110,7 +122,7 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
           {isUploading ? (
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="h-10 w-10 text-primary animate-spin" />
-              <p className="text-sm font-medium text-slate-700">엑셀 서식 파싱 및 Turso DB 저장 중...</p>
+              <p className="text-sm font-medium text-slate-700">엑셀 서식 파싱 및 계산기 연동 중...</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3 text-center">
@@ -134,15 +146,10 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-emerald-600" />
               <span>
-                <strong>{lastUploadedInfo.fileName}</strong> 처리 완료 (월마감 {lastUploadedInfo.monthlyCount}개 시트, 부가세 {lastUploadedInfo.vatCount}개 시트)
+                <strong>{lastUploadedInfo.fileName}</strong> 파싱 완료 (월마감 {lastUploadedInfo.monthlyCount}개 시트, 부가세 {lastUploadedInfo.vatCount}개 시트)
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-white">
-                {lastUploadedInfo.githubBackup ? 'GitHub 백업 완료' : '로컬 DB 동기화됨'}
-              </Badge>
-              <span className="text-muted-foreground">{lastUploadedInfo.time}</span>
-            </div>
+            <span className="text-muted-foreground">{lastUploadedInfo.time}</span>
           </div>
         )}
       </CardContent>
