@@ -35,9 +35,15 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
         return;
       }
 
-      // 1. 전체 월마감 목록 및 부가세 목록을 스토어에 동기화
+      // 1. 전체 월마감 목록 및 부가세 목록을 스토어와 Turso DB에 동기화
       if (monthly.length > 0) {
         setMonthlyList(monthly);
+
+        // Turso DB에 일괄 저장
+        const { saveMonthlyToTurso } = await import('@/lib/db/client-db');
+        for (const m of monthly) {
+          saveMonthlyToTurso(m);
+        }
 
         // 최신 월마감 데이터를 현재 입력 폼에 즉시 로드
         const latest = monthly[monthly.length - 1];
@@ -55,6 +61,10 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
 
       if (vat.length > 0) {
         setVatList(vat);
+        const { saveVatToTurso } = await import('@/lib/db/client-db');
+        for (const v of vat) {
+          saveVatToTurso(v);
+        }
       }
 
       // 서버 API가 있으면 전송도 시도

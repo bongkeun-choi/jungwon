@@ -85,26 +85,38 @@ export function VatCalculator() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch('/api/vat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          year,
-          quarter,
-          title: `${String(year).slice(-2)}년 ${quarter}분기(${quarterMonths[0]}~${quarterMonths[2]}월) 부가세 신고`,
-          salesData: salesRows,
-          purchaseData: purchaseRows,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success(`${year}년 ${quarter}분기 부가세 내역이 저장되었습니다.`);
-        await fetchVatList();
+      const vatData = {
+        id: `${String(year).slice(-2)}-${quarter}`,
+        year,
+        quarter,
+        title: `${String(year).slice(-2)}년 ${quarter}분기(${quarterMonths[0]}~${quarterMonths[2]}월) 부가세 신고`,
+        salesData: salesRows,
+        purchaseData: purchaseRows,
+        salesTaxTotal: salesTaxSum,
+        salesCardTotal: salesCardSum,
+        salesTotal: salesTotal,
+        purchaseTotal: purchaseTotal,
+        difference: difference,
+      };
+
+      const { saveVatToTurso } = await import('@/lib/db/client-db');
+      await saveVatToTurso(vatData);
+      
+      // 로컬 스토어 업데이트
+      const existIdx = vatList.findIndex((v) => v.id === vatData.id);
+      let nextVat = [];
+      if (existIdx >= 0) {
+        nextVat = [...vatList];
+        nextVat[existIdx] = vatData;
       } else {
-        toast.error('저장에 실패했습니다.');
+        nextVat = [vatData, ...vatList];
       }
-    } catch {
-      toast.error('저장 중 네트워크 오류가 발생했습니다.');
+      useClosingStore.getState().setVatList(nextVat);
+
+      toast.success(`${year}년 ${quarter}분기 부가세 내역이 Turso DB에 저장되었습니다.`);
+    } catch (e: any) {
+      console.error(e);
+      toast.error('저장 중 오류가 발생했습니다.');
     }
   };
 

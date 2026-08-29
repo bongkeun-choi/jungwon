@@ -1,5 +1,12 @@
 import { create } from 'zustand';
 import { AccountItem, VatSalesItem, VatPurchaseItem } from '@/lib/db/schema';
+import {
+  getMonthlyFromTurso,
+  saveMonthlyToTurso,
+  deleteMonthlyFromTurso,
+  getVatFromTurso,
+  saveVatToTurso,
+} from '@/lib/db/client-db';
 
 export interface MonthlyState {
   year: number;
@@ -30,7 +37,6 @@ interface StoreState {
   deleteMonthly: (id: string) => Promise<boolean>;
 }
 
-// LocalStorage 헬퍼
 const LOCAL_KEY_MONTHLY = 'BONSA_MAGAM_MONTHLY_LIST';
 const LOCAL_KEY_VAT = 'BONSA_MAGAM_VAT_LIST';
 
@@ -157,45 +163,57 @@ export const useClosingStore = create<StoreState>((set, get) => ({
     }),
 
   fetchMonthlyList: async () => {
-    // 로컬 스토리지에 데이터가 있으면 먼저 로드
+    set({ isLoading: true });
+    try {
+      // 1. Turso DB에서 직접 실시간 조회
+      const tursoData = await getMonthlyFromTurso();
+      if (tursoData && tursoData.length > 0) {
+        set({ monthlyList: tursoData });
+        saveLocal(LOCAL_KEY_MONTHLY, tursoData);
+
+        const latest = tursoData[0];
+        set({
+          currentMonthly: {
+            year: latest.year,
+            month: latest.month,
+            purchaseAmount: latest.purchaseAmount,
+            serviceAs: latest.serviceAs,
+            point: latest.point,
+            incentive: latest.incentive,
+            headquartersDeposit: latest.headquartersDeposit,
+            accounts: latest.accounts || [],
+          },
+        });
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      set({ isLoading: false });
+    }
+
+    // 2. Turso 조회 실패 시 로컬 스토리지 확인
     const local = loadLocal(LOCAL_KEY_MONTHLY, null);
     if (local && local.length > 0) {
       set({ monthlyList: local });
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/closing');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.data.length > 0) {
-          set({ monthlyList: data.data });
-          saveLocal(LOCAL_KEY_MONTHLY, data.data);
-        }
-      }
-    } catch {
-      // 정적 환경에서는 로컬 데이터 유지
     }
   },
 
   fetchVatList: async () => {
+    try {
+      const tursoVat = await getVatFromTurso();
+      if (tursoVat && tursoVat.length > 0) {
+        set({ vatList: tursoVat });
+        saveLocal(LOCAL_KEY_VAT, tursoVat);
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
     const local = loadLocal(LOCAL_KEY_VAT, null);
     if (local && local.length > 0) {
       set({ vatList: local });
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/vat');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.data.length > 0) {
-          set({ vatList: data.data });
-          saveLocal(LOCAL_KEY_VAT, data.data);
-        }
-      }
-    } catch {
-      // 정적 환경
     }
   },
 
@@ -227,6 +245,10 @@ export const useClosingStore = create<StoreState>((set, get) => ({
       rawExcelSheetName: `  ${String(currentMonthly.year).slice(-2)}년 ${String(currentMonthly.month).padStart(2, '0')}월`,
     };
 
+    // 1. Turso DB에 직접 저장
+    const tursoSuccess = await saveMonthlyToTurso(newItem);
+
+    // 2. 로컬 상태 및 스토리지 업데이트
     const existIdx = monthlyList.findIndex((m) => m.id === id);
     let nextList = [];
     if (existIdx >= 0) {
@@ -238,29 +260,14 @@ export const useClosingStore = create<StoreState>((set, get) => ({
 
     get().setMonthlyList(nextList);
 
-    try {
-      await fetch('/api/closing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentMonthly),
-      });
-    } catch {
-      // 정적 환경
-    }
-
-    return true;
+    return tursoSuccess || true;
   },
 
   deleteMonthly: async (id: string) => {
+    await deleteMonthlyFromTurso(id);
     const { monthlyList } = get();
     const nextList = monthlyList.filter((m) => m.id !== id);
     get().setMonthlyList(nextList);
-
-    try {
-      await fetch(`/api/closing?id=${id}`, { method: 'DELETE' });
-    } catch {
-      // 정적 환경
-    }
     return true;
   },
 }));
