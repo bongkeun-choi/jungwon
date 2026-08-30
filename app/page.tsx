@@ -37,8 +37,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans selection:bg-blue-100">
-      {/* 1. 최상단 컴팩트 컨트롤 바 */}
-      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      {/* 1. 최상단 컴팩트 컨트롤 바 (마우스로 잡고 창 이동 가능 영역) */}
+      <header className="app-drag cursor-move bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-[0_1px_2px_rgba(0,0,0,0.03)] select-none">
         <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
           {/* 로고 & 타이틀 */}
           <div className="flex items-center gap-2.5">
@@ -51,8 +51,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* 우측 도구 모음 */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* 우측 도구 모음 (클릭 영역은 no-drag) */}
+          <div className="app-no-drag cursor-default flex items-center gap-1.5 sm:gap-2">
             {/* 주소창 없는 전용 창 팝업 버튼 */}
             <Button
               variant="outline"

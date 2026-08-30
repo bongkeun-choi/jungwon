@@ -63,3 +63,15 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* 창 드래그 이동 지원 */
+.app-drag {
+  -webkit-app-region: drag;
+  app-region: drag;
+  user-select: none;
+}
+
+.app-no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
