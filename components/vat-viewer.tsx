@@ -32,16 +32,16 @@ export function VatViewer() {
   const purchaseBarWidth = `${(purchaseTotal / maxCompare) * 100}%`;
 
   return (
-    <div className="space-y-3.5 max-w-xl mx-auto">
+    <div className="space-y-2.5 max-w-xl mx-auto">
       {/* 1. 상단 날짜 검색기 */}
-      <div className="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="flex items-center gap-2 text-slate-900 font-bold text-sm sm:text-base">
-          <Calendar className="h-4 w-4 text-blue-600" />
+      <div className="flex items-center justify-between bg-white px-3.5 py-2 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center gap-2 text-slate-900 font-black text-base sm:text-lg">
+          <Calendar className="h-5 w-5 text-blue-600" />
           <span>분기 부가세 조회</span>
         </div>
         <div className="flex items-center gap-2">
           <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(parseInt(v))}>
-            <SelectTrigger className="h-9 w-28 rounded-xl bg-slate-50 border-slate-200 text-xs sm:text-sm font-bold">
+            <SelectTrigger className="h-9 w-32 rounded-xl bg-slate-50 border-slate-200 text-sm sm:text-base font-black text-slate-800">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -54,7 +54,7 @@ export function VatViewer() {
           </Select>
 
           <Select value={String(selectedQuarter)} onValueChange={(v) => setSelectedQuarter(parseInt(v))}>
-            <SelectTrigger className="h-9 w-24 rounded-xl bg-slate-50 border-slate-200 text-xs sm:text-sm font-bold">
+            <SelectTrigger className="h-9 w-24 rounded-xl bg-slate-50 border-slate-200 text-sm sm:text-base font-black text-slate-800">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -68,82 +68,82 @@ export function VatViewer() {
         </div>
       </div>
 
-      {/* 2. 상단 분기 정산 집계 카드 (컴팩트 여백) */}
-      <Card className="shadow-sm border-slate-200 bg-white rounded-2xl p-4 sm:p-5 space-y-4">
-        <h2 className="text-sm sm:text-base font-bold text-slate-900">
+      {/* 2. 상단 분기 정산 집계 카드 (여백 축소 & 글씨 확대) */}
+      <Card className="shadow-sm border-slate-200 bg-white rounded-2xl p-3.5 sm:p-4 space-y-3">
+        <h2 className="text-base sm:text-lg font-black text-slate-900">
           분기 정산 집계 &bull; {String(selectedYear).slice(-2)}년 {selectedQuarter}분기({quarterMonths[0]}~{quarterMonths[2]}월)
         </h2>
 
         {/* 6개 KPI 카드 그리드 */}
-        <div className="grid grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-3 gap-2">
           {/* 매출 세금계산서 */}
-          <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl">
-            <span className="text-[11px] text-blue-700 block font-semibold">매출 세금계산서</span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-slate-900 mt-0.5 block">
+          <div className="p-2.5 bg-blue-50/70 border border-blue-100 rounded-xl">
+            <span className="text-xs text-blue-700 block font-bold">매출 세금</span>
+            <span className="text-sm sm:text-base font-black font-mono text-slate-900 mt-0.5 block">
               {formatCurrency(salesTaxTotal)}
             </span>
           </div>
 
           {/* 매출 신용카드 */}
-          <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl">
-            <span className="text-[11px] text-blue-700 block font-semibold">매출 신용카드</span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-slate-900 mt-0.5 block">
+          <div className="p-2.5 bg-blue-50/70 border border-blue-100 rounded-xl">
+            <span className="text-xs text-blue-700 block font-bold">매출 카드</span>
+            <span className="text-sm sm:text-base font-black font-mono text-slate-900 mt-0.5 block">
               {formatCurrency(salesCardTotal)}
             </span>
           </div>
 
           {/* 총 매출 */}
-          <div className="p-3 bg-blue-600 text-white rounded-xl shadow-md shadow-blue-500/20">
-            <span className="text-[11px] text-blue-100 block font-semibold">총 매출</span>
-            <span className="text-xs sm:text-sm font-black font-mono mt-0.5 block">
+          <div className="p-2.5 bg-blue-600 text-white rounded-xl shadow-md shadow-blue-500/20">
+            <span className="text-xs text-blue-100 block font-bold">총 매출</span>
+            <span className="text-sm sm:text-base font-black font-mono mt-0.5 block">
               {formatCurrency(salesTotal)}
             </span>
           </div>
 
           {/* 매입 세금계산서 */}
-          <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
-            <span className="text-[11px] text-slate-600 block font-semibold">매입 세금계산서</span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-slate-900 mt-0.5 block">
+          <div className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl">
+            <span className="text-xs text-slate-600 block font-bold">매입 세금</span>
+            <span className="text-sm sm:text-base font-black font-mono text-slate-900 mt-0.5 block">
               {formatCurrency(purchaseTaxTotal)}
             </span>
           </div>
 
           {/* 매입 신용카드 */}
-          <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
-            <span className="text-[11px] text-slate-600 block font-semibold">매입 신용카드</span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-slate-900 mt-0.5 block">
+          <div className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl">
+            <span className="text-xs text-slate-600 block font-bold">매입 카드</span>
+            <span className="text-sm sm:text-base font-black font-mono text-slate-900 mt-0.5 block">
               {formatCurrency(purchaseCardTotal)}
             </span>
           </div>
 
           {/* 총 매입 */}
-          <div className="p-3 bg-slate-950 text-white rounded-xl shadow-md">
-            <span className="text-[11px] text-slate-300 block font-semibold">총 매입</span>
-            <span className="text-xs sm:text-sm font-black font-mono mt-0.5 block">
+          <div className="p-2.5 bg-slate-950 text-white rounded-xl shadow-md">
+            <span className="text-xs text-slate-300 block font-bold">총 매입</span>
+            <span className="text-sm sm:text-base font-black font-mono mt-0.5 block">
               {formatCurrency(purchaseTotal)}
             </span>
           </div>
         </div>
 
         {/* 매출 - 매입 차액 카드 */}
-        <div className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/70 flex items-center justify-between">
+        <div className="p-3 rounded-xl border border-slate-100 bg-slate-50/70 flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-slate-800 block">
-              매출 - 매입 차액 (부가세 과세표준 기준)
+            <span className="text-xs sm:text-sm font-black text-slate-800 block">
+              매출 - 매입 차액 (과세표준 기준)
             </span>
-            <span className="text-[10px] text-muted-foreground font-mono mt-0.5 block">
+            <span className="text-xs text-muted-foreground font-mono mt-0.5 block">
               {formatCurrency(salesTotal)} - {formatCurrency(purchaseTotal)}
             </span>
           </div>
           <div className="text-right">
             <span
-              className={`text-lg sm:text-xl font-black font-mono ${
+              className={`text-xl sm:text-2xl font-black font-mono ${
                 difference >= 0 ? 'text-blue-600' : 'text-rose-600'
               }`}
             >
               {formatCurrency(difference)} 원
             </span>
-            <span className="text-[10px] text-slate-400 block font-semibold">
+            <span className="text-xs text-slate-500 block font-bold">
               {difference >= 0 ? '매출 초과' : '매입 초과'}
             </span>
           </div>
@@ -151,23 +151,23 @@ export function VatViewer() {
       </Card>
 
       {/* 3. 매출 vs 매입 비교 바 차트 카드 */}
-      <Card className="shadow-sm border-slate-200 bg-white rounded-2xl p-4 sm:p-5 space-y-3">
-        <h2 className="text-sm sm:text-base font-bold text-slate-900">매출 vs 매입 비교</h2>
-        <div className="space-y-3 pt-1">
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs sm:text-sm">
-              <span className="font-bold text-blue-600">총 매출</span>
-              <span className="font-mono font-extrabold text-slate-900">{formatCurrency(salesTotal)} 원</span>
+      <Card className="shadow-sm border-slate-200 bg-white rounded-2xl p-3.5 sm:p-4 space-y-2.5">
+        <h2 className="text-base font-black text-slate-900">매출 vs 매입 비교</h2>
+        <div className="space-y-2 pt-0.5">
+          <div className="space-y-0.5">
+            <div className="flex justify-between text-sm">
+              <span className="font-extrabold text-blue-600">총 매출</span>
+              <span className="font-mono font-black text-slate-900">{formatCurrency(salesTotal)} 원</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-2.5">
               <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style={{ width: salesBarWidth }} />
             </div>
           </div>
 
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs sm:text-sm">
-              <span className="font-bold text-slate-800">총 매입</span>
-              <span className="font-mono font-extrabold text-slate-900">{formatCurrency(purchaseTotal)} 원</span>
+          <div className="space-y-0.5">
+            <div className="flex justify-between text-sm">
+              <span className="font-extrabold text-slate-800">총 매입</span>
+              <span className="font-mono font-black text-slate-900">{formatCurrency(purchaseTotal)} 원</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-2.5">
               <div className="bg-slate-950 h-2.5 rounded-full transition-all duration-500" style={{ width: purchaseBarWidth }} />

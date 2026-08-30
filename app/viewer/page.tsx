@@ -63,8 +63,8 @@ export default function StandaloneViewerPage() {
       </header>
 
       {/* 2. 본문 컨텐츠 */}
-      <main className="max-w-xl w-full mx-auto px-3.5 py-3 flex-1">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
+      <main className="max-w-xl w-full mx-auto px-2.5 py-1.5 flex-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-2">
           {/* 상단 탭 바 + 본문 내 안전한 관리자 버튼 배치 (2중 안전 장치!) */}
           <div className="flex items-center justify-between bg-slate-200/70 p-1 rounded-2xl border border-slate-200 shadow-inner">
             <TabsList className="bg-transparent p-0 h-9 inline-flex space-x-1">
