@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { UploadCloud, FileSpreadsheet, CheckCircle2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClosingStore } from '@/hooks/use-closing';
+import { useAdminStore } from '@/hooks/use-admin';
 import { parseOriginalExcel } from '@/lib/excel/parser';
 
 export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
@@ -14,8 +15,15 @@ export function ExcelUploader({ onUploaded }: { onUploaded?: () => void }) {
   const [lastUploadedInfo, setLastUploadedInfo] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { setCurrentMonthly, setMonthlyList, setVatList } = useClosingStore();
+  const { isAdmin, openDialog } = useAdminStore();
 
   const handleUpload = async (file: File) => {
+    if (!isAdmin) {
+      openDialog();
+      toast.warning('엑셀 파일 업로드 및 DB 저장은 관리자 로그인이 필요합니다.');
+      return;
+    }
+
     if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
       toast.error('엑셀 파일(.xlsx, .xls)만 업로드할 수 있습니다.');
       return;

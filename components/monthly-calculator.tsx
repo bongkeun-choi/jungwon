@@ -7,12 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useClosingStore } from '@/hooks/use-closing';
+import { useAdminStore } from '@/hooks/use-admin';
 import { formatCurrency, parseNumber } from '@/lib/utils';
-import { Plus, X, Lightbulb, Wrench, Star, Gift, Building } from 'lucide-react';
+import { Plus, X, Lightbulb, Wrench, Star, Gift, Building, Lock, ShieldCheck, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function MonthlyCalculator() {
   const { currentMonthly, setCurrentMonthly, addAccount, removeAccount, updateAccount, saveCurrentMonthly, monthlyList } = useClosingStore();
+  const { isAdmin, openDialog } = useAdminStore();
 
   const purchase = currentMonthly.purchaseAmount || 0;
   const service = currentMonthly.serviceAs || 0;
@@ -55,6 +57,11 @@ export function MonthlyCalculator() {
   };
 
   const handleAddAccount = () => {
+    if (!isAdmin) {
+      openDialog();
+      toast.warning('통장 추가는 관리자 로그인이 필요합니다.');
+      return;
+    }
     addAccount({
       name: newAccName.trim() || `통장 ${currentMonthly.accounts.length + 1}`,
       amount: parseNumber(newAccAmount),
@@ -64,6 +71,11 @@ export function MonthlyCalculator() {
   };
 
   const handleReset = () => {
+    if (!isAdmin) {
+      openDialog();
+      toast.warning('초기화는 관리자 로그인이 필요합니다.');
+      return;
+    }
     setCurrentMonthly({
       purchaseAmount: 0,
       serviceAs: 0,
@@ -79,9 +91,14 @@ export function MonthlyCalculator() {
   };
 
   const handleSave = async () => {
+    if (!isAdmin) {
+      openDialog();
+      toast.warning('데이터 수정 및 저장은 관리자 로그인이 필요합니다.');
+      return;
+    }
     const success = await saveCurrentMonthly();
     if (success) {
-      toast.success(`${currentMonthly.year}년 ${currentMonthly.month}월 마감 데이터가 성공적으로 저장되었습니다.`);
+      toast.success(`${currentMonthly.year}년 ${currentMonthly.month}월 마감 데이터가 Turso DB에 저장되었습니다.`);
     } else {
       toast.error('저장에 실패했습니다.');
     }
@@ -116,6 +133,10 @@ export function MonthlyCalculator() {
     return `${pct}%`;
   };
 
+  const inputClass = !isAdmin
+    ? "text-right pr-7 font-mono font-semibold text-slate-700 bg-slate-100/60 cursor-pointer h-10 rounded-xl border-slate-200"
+    : "text-right pr-7 font-mono font-semibold text-slate-900 bg-white h-10 rounded-xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500";
+
   return (
     <div className="space-y-6">
       {/* 2컬럼 레이아웃 */}
@@ -128,9 +149,24 @@ export function MonthlyCalculator() {
           <Card className="shadow-sm border-slate-200 bg-white rounded-2xl">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-bold text-slate-900">
-                  본사 정산 내역
-                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base font-bold text-slate-900">
+                    본사 정산 내역
+                  </CardTitle>
+                  {isAdmin ? (
+                    <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[11px] font-medium flex items-center gap-1">
+                      <ShieldCheck className="h-3 w-3" /> 수정 가능
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      onClick={openDialog}
+                      className="text-slate-500 bg-slate-50 hover:bg-slate-100 cursor-pointer text-[11px] font-medium flex items-center gap-1"
+                    >
+                      <Lock className="h-3 w-3 text-slate-400" /> 조회 모드 (로그인 시 수정)
+                    </Badge>
+                  )}
+                </div>
                 <Badge variant="outline" className="text-xs text-blue-600 bg-blue-50/50 border-blue-200">
                   실시간 계산
                 </Badge>
@@ -183,10 +219,12 @@ export function MonthlyCalculator() {
                 </div>
                 <div className="relative flex-1">
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={purchase ? formatCurrency(purchase) : ''}
                     onChange={(e) => setCurrentMonthly({ purchaseAmount: parseNumber(e.target.value) })}
                     placeholder="0"
-                    className="text-right pr-7 font-mono font-semibold text-slate-900 bg-white h-10 rounded-xl"
+                    className={inputClass}
                   />
                   <span className="absolute right-2.5 top-2.5 text-xs text-muted-foreground font-medium">원</span>
                 </div>
@@ -202,10 +240,12 @@ export function MonthlyCalculator() {
                 </div>
                 <div className="relative flex-1">
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={service ? formatCurrency(service) : ''}
                     onChange={(e) => setCurrentMonthly({ serviceAs: parseNumber(e.target.value) })}
                     placeholder="0"
-                    className="text-right pr-7 font-mono font-semibold text-slate-900 bg-white h-10 rounded-xl"
+                    className={inputClass}
                   />
                   <span className="absolute right-2.5 top-2.5 text-xs text-muted-foreground font-medium">원</span>
                 </div>
@@ -221,10 +261,12 @@ export function MonthlyCalculator() {
                 </div>
                 <div className="relative flex-1">
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={point ? formatCurrency(point) : ''}
                     onChange={(e) => setCurrentMonthly({ point: parseNumber(e.target.value) })}
                     placeholder="0"
-                    className="text-right pr-7 font-mono font-semibold text-slate-900 bg-white h-10 rounded-xl"
+                    className={inputClass}
                   />
                   <span className="absolute right-2.5 top-2.5 text-xs text-muted-foreground font-medium">원</span>
                 </div>
@@ -240,10 +282,12 @@ export function MonthlyCalculator() {
                 </div>
                 <div className="relative flex-1">
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={incentive ? formatCurrency(incentive) : ''}
                     onChange={(e) => setCurrentMonthly({ incentive: parseNumber(e.target.value) })}
                     placeholder="0"
-                    className="text-right pr-7 font-mono font-semibold text-slate-900 bg-white h-10 rounded-xl"
+                    className={inputClass}
                   />
                   <span className="absolute right-2.5 top-2.5 text-xs text-muted-foreground font-medium">원</span>
                 </div>
@@ -259,10 +303,12 @@ export function MonthlyCalculator() {
                 </div>
                 <div className="relative flex-1">
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={headquarters ? formatCurrency(headquarters) : ''}
                     onChange={(e) => setCurrentMonthly({ headquartersDeposit: parseNumber(e.target.value) })}
                     placeholder="0"
-                    className="text-right pr-7 font-mono font-semibold text-slate-900 bg-white h-10 rounded-xl"
+                    className={inputClass}
                   />
                   <span className="absolute right-2.5 top-2.5 text-xs text-muted-foreground font-medium">원</span>
                 </div>
@@ -302,28 +348,36 @@ export function MonthlyCalculator() {
                     {idx + 1}
                   </div>
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={acc.name}
                     onChange={(e) => updateAccount(idx, { name: e.target.value })}
                     placeholder="통장명"
-                    className="w-1/3 h-10 rounded-xl bg-white border-slate-200 text-sm font-medium"
+                    className={`w-1/3 h-10 rounded-xl border-slate-200 text-sm font-medium ${
+                      !isAdmin ? 'bg-slate-100/60 cursor-pointer text-slate-700' : 'bg-white'
+                    }`}
                   />
                   <div className="relative flex-1">
                     <Input
+                      readOnly={!isAdmin}
+                      onClick={() => !isAdmin && openDialog()}
                       value={acc.amount ? formatCurrency(acc.amount) : ''}
                       onChange={(e) => updateAccount(idx, { amount: parseNumber(e.target.value) })}
                       placeholder="0"
-                      className="text-right pr-7 font-mono font-semibold text-slate-900 bg-white h-10 rounded-xl"
+                      className={inputClass}
                     />
                     <span className="absolute right-2.5 top-2.5 text-xs text-muted-foreground font-medium">원</span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeAccount(idx)}
-                    className="h-9 w-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeAccount(idx)}
+                      className="h-9 w-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               ))}
 
@@ -357,15 +411,17 @@ export function MonthlyCalculator() {
             </Button>
             <Button
               onClick={handleSave}
-              className="flex-[2] h-11 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20"
+              className={`flex-[2] h-11 rounded-xl font-semibold text-white shadow-md ${
+                isAdmin ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20' : 'bg-slate-700 hover:bg-slate-800'
+              }`}
             >
-              저장
+              {isAdmin ? '저장' : '🔒 로그인 후 저장'}
             </Button>
             <Button
               onClick={handleExportCSV}
-              className="flex-1 h-11 rounded-xl font-semibold bg-slate-900 hover:bg-slate-800 text-white"
+              className="flex-1 h-11 rounded-xl font-semibold bg-slate-900 hover:bg-slate-800 text-white flex items-center gap-1"
             >
-              CSV 내보내기
+              <Download className="h-4 w-4" /> CSV 내보내기
             </Button>
           </div>
         </div>
@@ -389,19 +445,26 @@ export function MonthlyCalculator() {
               <span className="text-xl font-semibold ml-1.5">원</span>
             </div>
 
+            {/* 수식 시각화 바 */}
             <div className="mt-4 pt-3 border-t border-white/20 text-[11px] font-mono text-blue-100 space-y-0.5 break-all">
-              <p>{formatCurrency(purchase)} - {formatCurrency(service)} - {formatCurrency(point)} - {formatCurrency(incentive)} - {formatCurrency(headquarters)}</p>
-              <p className="text-[10px] text-blue-200 font-sans">매입금액 - 서비스 - 포인트 - 인센티브 - 본사입금</p>
+              <p>
+                {formatCurrency(purchase)} - {formatCurrency(service)} - {formatCurrency(point)} - {formatCurrency(incentive)} - {formatCurrency(headquarters)}
+              </p>
+              <p className="text-[10px] text-blue-200 font-sans">
+                매입금액 - 서비스 - 포인트 - 인센티브 - 본사입금
+              </p>
             </div>
           </div>
 
-          {/* 통장합계 vs 차액 2분할 카드 */}
+          {/* 중간 통장 총액 & 차액 2열 그리드 */}
           <div className="grid grid-cols-2 gap-4">
-            {/* 좌: 통장 합계 */}
+            {/* 통장 총액 카드 */}
             <Card className="shadow-sm border-slate-200 bg-white rounded-2xl p-4">
               <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
                 <span>통장 총액</span>
-                <Badge variant="secondary" className="text-[10px] py-0 px-1">{currentMonthly.accounts.length}</Badge>
+                <Badge variant="secondary" className="text-[10px] py-0 px-1">
+                  {currentMonthly.accounts.length}
+                </Badge>
               </div>
               <p className="text-lg font-bold font-mono text-slate-900 mt-1.5">
                 {formatCurrency(bankTotal)} <span className="text-xs font-normal">원</span>
@@ -416,27 +479,45 @@ export function MonthlyCalculator() {
               </div>
             </Card>
 
-            {/* 우: 차액 */}
-            <Card className={`shadow-sm rounded-2xl p-4 border ${difference === 0 ? 'border-emerald-200 bg-emerald-50/20' : 'border-rose-200 bg-rose-50/30'}`}>
-              <span className="text-xs text-rose-500 font-bold block">정산 차액</span>
-              <p className={`text-lg font-bold font-mono mt-1.5 ${difference === 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+            {/* 정산 차액 카드 */}
+            <div
+              className={`rounded-2xl p-4 border transition-all ${
+                difference === 0
+                  ? 'border-emerald-200 bg-emerald-50/20'
+                  : 'border-rose-200 bg-rose-50/20'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-rose-500 font-bold">정산 차액</span>
+                {difference === 0 ? (
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100/70 px-1.5 py-0.5 rounded">
+                    일치
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded">
+                    불일치
+                  </span>
+                )}
+              </div>
+              <p
+                className={`text-lg font-bold font-mono mt-1.5 ${
+                  difference === 0 ? 'text-emerald-600' : 'text-rose-600'
+                }`}
+              >
                 {formatCurrency(difference)} <span className="text-xs font-normal">원</span>
               </p>
-              {difference !== 0 && (
-                <Badge variant="destructive" className="mt-1.5 text-[10px] py-0 px-1.5 bg-rose-500">
-                  불일치 확인 필요
-                </Badge>
-              )}
               <p className="text-[10px] text-slate-500 font-mono mt-2 break-all">
                 {formatCurrency(closingAmount)} - {formatCurrency(bankTotal)} = {formatCurrency(difference)}
               </p>
-            </Card>
+            </div>
           </div>
 
-          {/* 정산 구성 시각화 카드 */}
+          {/* 하단 정산 구성 현황 및 비율 프로그레스 바 */}
           <Card className="shadow-sm border-slate-200 bg-white rounded-2xl">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-slate-900">정산 구성 현황</CardTitle>
+              <CardTitle className="text-sm font-bold text-slate-900">
+                정산 구성 현황
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2.5 text-xs">
               {/* 매입 */}
@@ -494,7 +575,7 @@ export function MonthlyCalculator() {
                 </div>
               </div>
 
-              {/* 마감 결과 바 */}
+              {/* 최종 마감금액 */}
               <div className="pt-2 border-t space-y-1">
                 <div className="flex justify-between text-blue-600 font-bold">
                   <span>최종 마감금액</span>
@@ -505,7 +586,7 @@ export function MonthlyCalculator() {
                 </div>
               </div>
 
-              {/* 통장 내역 바 */}
+              {/* 통장별 입금액 */}
               <div className="pt-2 border-t space-y-2">
                 <span className="text-[11px] font-bold text-slate-800 block">통장별 입금액</span>
                 {currentMonthly.accounts.map((acc, i) => (
@@ -515,20 +596,22 @@ export function MonthlyCalculator() {
                       <span className="font-mono font-medium">{formatCurrency(acc.amount)}</span>
                     </div>
                     <div className="w-full bg-emerald-50 rounded-full h-1.5">
-                      <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: getBarWidth(acc.amount) }} />
+                      <div
+                        className="bg-emerald-500 h-1.5 rounded-full"
+                        style={{ width: getBarWidth(acc.amount) }}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* 하단 검정 계좌 카드 */}
+              {/* 국민 계좌 안내 */}
               <div className="mt-4 p-3 bg-slate-950 text-white rounded-xl flex items-center justify-between text-xs font-mono">
                 <span className="text-slate-400 font-sans">국민은행</span>
                 <span className="font-bold text-amber-400">3001-9029-00536-1</span>
               </div>
             </CardContent>
           </Card>
-
         </div>
       </div>
     </div>

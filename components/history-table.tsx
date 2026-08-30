@@ -6,12 +6,14 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useClosingStore } from '@/hooks/use-closing';
+import { useAdminStore } from '@/hooks/use-admin';
 import { formatCurrency } from '@/lib/utils';
 import { History, Download, Trash2, Edit3, ArrowUpRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function HistoryTable({ onSelectEdit }: { onSelectEdit?: () => void }) {
   const { monthlyList, setCurrentMonthly, deleteMonthly } = useClosingStore();
+  const { isAdmin, openDialog } = useAdminStore();
 
   const handleEdit = (item: any) => {
     setCurrentMonthly({
@@ -29,6 +31,12 @@ export function HistoryTable({ onSelectEdit }: { onSelectEdit?: () => void }) {
   };
 
   const handleDelete = async (id: string, label: string) => {
+    if (!isAdmin) {
+      openDialog();
+      toast.warning('데이터 삭제는 관리자 로그인이 필요합니다.');
+      return;
+    }
+
     if (confirm(`${label} 마감 데이터를 삭제하시겠습니까?`)) {
       const ok = await deleteMonthly(id);
       if (ok) {

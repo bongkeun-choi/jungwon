@@ -2,21 +2,33 @@
 
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { MonthlyCalculator } from "@/components/monthly-calculator";
 import { VatCalculator } from "@/components/vat-calculator";
 import { HistoryTable } from "@/components/history-table";
 import { DashboardView } from "@/components/dashboard-view";
 import { ExcelUploader } from "@/components/excel-uploader";
+import { AdminLoginDialog } from "@/components/admin-login-dialog";
 import { useClosingStore } from "@/hooks/use-closing";
+import { useAdminStore } from "@/hooks/use-admin";
+import { Lock, Unlock, ShieldCheck, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState("monthly");
   const { fetchMonthlyList, fetchVatList } = useClosingStore();
+  const { isAdmin, openDialog, logout } = useAdminStore();
 
   useEffect(() => {
     fetchMonthlyList();
     fetchVatList();
   }, [fetchMonthlyList, fetchVatList]);
+
+  const handleLogout = () => {
+    logout();
+    toast.info("관리자 모드가 해제되었습니다. (조회 전용 모드)");
+  };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
@@ -38,12 +50,42 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* 우측 계좌 안내 (크고 선명하게) */}
-          <div className="flex items-center gap-2.5 bg-slate-950 text-white px-4 py-2 rounded-xl shadow-sm border border-slate-800">
-            <span className="text-xs text-slate-300 font-medium">지정 입금계좌</span>
-            <span className="text-sm sm:text-base font-bold font-mono text-amber-400 tracking-wide">
-              국민 3001-9029-00536-1
-            </span>
+          {/* 우측 관리자 모드 버튼 & 지정 입금계좌 */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* 관리자 상태 버튼 */}
+            {isAdmin ? (
+              <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
+                <span className="flex items-center gap-1 text-xs font-bold text-emerald-700">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  관리자 모드
+                </span>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="ml-1 text-[11px] text-slate-400 hover:text-rose-600 underline flex items-center gap-0.5"
+                >
+                  <LogOut className="h-3 w-3" /> 로그아웃
+                </button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={openDialog}
+                className="gap-1.5 rounded-xl border-slate-300 text-xs font-medium hover:bg-slate-50 text-slate-700 h-9"
+              >
+                <Lock className="h-3.5 w-3.5 text-slate-500" />
+                관리자 로그인
+              </Button>
+            )}
+
+            {/* 우측 계좌 안내 (크고 선명하게) */}
+            <div className="flex items-center gap-2.5 bg-slate-950 text-white px-4 py-2 rounded-xl shadow-sm border border-slate-800">
+              <span className="text-xs text-slate-300 font-medium hidden sm:inline">지정 입금계좌</span>
+              <span className="text-xs sm:text-base font-bold font-mono text-amber-400 tracking-wide">
+                국민 3001-9029-00536-1
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -114,10 +156,13 @@ export default function HomePage() {
         </Tabs>
       </main>
 
-      {/* 하단 푸터 */}
+      {/* 푸터 */}
       <footer className="py-6 text-center text-xs text-slate-400 font-medium">
         본사 마감 관리 시스템 &bull; 원본 엑셀 서식 100% 보존 &bull; Turso Cloud DB 연동 &bull; GitHub 자동 백업
       </footer>
+
+      {/* 관리자 로그인 모달 */}
+      <AdminLoginDialog />
     </div>
   );
 }

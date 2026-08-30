@@ -7,11 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useClosingStore } from '@/hooks/use-closing';
+import { useAdminStore } from '@/hooks/use-admin';
 import { formatCurrency, parseNumber } from '@/lib/utils';
+import { Lock, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function VatCalculator() {
   const { vatList, fetchVatList } = useClosingStore();
+  const { isAdmin, openDialog } = useAdminStore();
   const [year, setYear] = useState<number>(2026);
   const [quarter, setQuarter] = useState<number>(2);
 
@@ -84,6 +87,12 @@ export function VatCalculator() {
   const difference = salesTotal - purchaseTotal;
 
   const handleSave = async () => {
+    if (!isAdmin) {
+      openDialog();
+      toast.warning('부가세 데이터 저장은 관리자 로그인이 필요합니다.');
+      return;
+    }
+
     try {
       const vatData = {
         id: `${String(year).slice(-2)}-${quarter}`,
@@ -124,6 +133,10 @@ export function VatCalculator() {
   const salesBarWidth = `${(salesTotal / maxCompare) * 100}%`;
   const purchaseBarWidth = `${(purchaseTotal / maxCompare) * 100}%`;
 
+  const inputClass = !isAdmin
+    ? "text-right font-mono text-xs font-medium h-9 rounded-xl border-slate-200 bg-slate-100/60 cursor-pointer text-slate-700"
+    : "text-right font-mono text-xs font-medium h-9 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-blue-500";
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* 좌측 입력 영역 (6컬럼) */}
@@ -131,30 +144,46 @@ export function VatCalculator() {
         <Card className="shadow-sm border-slate-200 bg-white rounded-2xl p-6">
           {/* 헤더 & 드롭다운 */}
           <div className="flex items-center justify-between pb-4">
-            <h2 className="text-base font-bold text-slate-900">분기 부가세 입력</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900">분기 부가세 입력</h2>
+              {isAdmin ? (
+                <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[11px] font-medium flex items-center gap-1">
+                  <ShieldCheck className="h-3 w-3" /> 수정 가능
+                </Badge>
+              ) : (
+                <Badge
+                  variant="outline"
+                  onClick={openDialog}
+                  className="text-slate-500 bg-slate-50 hover:bg-slate-100 cursor-pointer text-[11px] font-medium flex items-center gap-1"
+                >
+                  <Lock className="h-3 w-3 text-slate-400" /> 조회 모드
+                </Badge>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <Select value={String(year)} onValueChange={(v) => setYear(parseInt(v))}>
                 <SelectTrigger className="h-9 w-28 rounded-xl bg-slate-50 border-slate-200 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[2024, 2025, 2026, 2027].map((y) => (
+                  {[2024, 2025, 2026, 2027, 2028].map((y) => (
                     <SelectItem key={y} value={String(y)}>
-                      {y}년
+                      {String(y).slice(-2)}년 ({y})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
               <Select value={String(quarter)} onValueChange={handleQuarterChange}>
-                <SelectTrigger className="h-9 w-36 rounded-xl bg-slate-50 border-slate-200 text-xs">
+                <SelectTrigger className="h-9 w-28 rounded-xl bg-slate-50 border-slate-200 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">1분기(1~3월)</SelectItem>
-                  <SelectItem value="2">2분기(4~6월)</SelectItem>
-                  <SelectItem value="3">3분기(7~9월)</SelectItem>
-                  <SelectItem value="4">4분기(10~12월)</SelectItem>
+                  {[1, 2, 3, 4].map((q) => (
+                    <SelectItem key={q} value={String(q)}>
+                      {q}분기
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -190,18 +219,22 @@ export function VatCalculator() {
                 </div>
                 <div className="col-span-5">
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={row.tax ? formatCurrency(row.tax) : ''}
                     onChange={(e) => updateSales(idx, 'tax', parseNumber(e.target.value))}
                     placeholder="0"
-                    className="text-right font-mono text-xs font-medium h-9 rounded-xl bg-white"
+                    className={inputClass}
                   />
                 </div>
                 <div className="col-span-5">
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={row.card ? formatCurrency(row.card) : ''}
                     onChange={(e) => updateSales(idx, 'card', parseNumber(e.target.value))}
                     placeholder="0"
-                    className="text-right font-mono text-xs font-medium h-9 rounded-xl bg-white"
+                    className={inputClass}
                   />
                 </div>
               </div>
@@ -230,18 +263,22 @@ export function VatCalculator() {
                 </div>
                 <div className="col-span-5">
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={row.tax ? formatCurrency(row.tax) : ''}
                     onChange={(e) => updatePurchase(idx, 'tax', parseNumber(e.target.value))}
                     placeholder="0"
-                    className="text-right font-mono text-xs font-medium h-9 rounded-xl bg-white"
+                    className={inputClass}
                   />
                 </div>
                 <div className="col-span-5">
                   <Input
+                    readOnly={!isAdmin}
+                    onClick={() => !isAdmin && openDialog()}
                     value={row.card ? formatCurrency(row.card) : '0'}
                     onChange={(e) => updatePurchase(idx, 'card', parseNumber(e.target.value))}
                     placeholder="0"
-                    className="text-right font-mono text-xs font-medium h-9 rounded-xl bg-white"
+                    className={inputClass}
                   />
                 </div>
               </div>
@@ -251,9 +288,11 @@ export function VatCalculator() {
           {/* 분기 저장 버튼 */}
           <Button
             onClick={handleSave}
-            className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md shadow-blue-500/20"
+            className={`w-full h-11 text-white font-semibold rounded-xl shadow-md ${
+              isAdmin ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20' : 'bg-slate-700 hover:bg-slate-800'
+            }`}
           >
-            분기 저장
+            {isAdmin ? '분기 저장' : '🔒 로그인 후 저장'}
           </Button>
         </Card>
       </div>
@@ -278,113 +317,129 @@ export function VatCalculator() {
             </div>
 
             {/* 매출 카드 합 */}
-            <div className="p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl">
-              <span className="text-[11px] text-indigo-700 block font-medium">매출 신용카드</span>
+            <div className="p-3.5 bg-blue-50/70 border border-blue-100 rounded-xl">
+              <span className="text-[11px] text-blue-700 block font-medium">매출 신용카드</span>
               <span className="text-sm sm:text-base font-bold font-mono text-slate-900 mt-1 block">
                 {formatCurrency(salesCardSum)}
               </span>
             </div>
 
-            {/* 총 매출합계 (검정 박스) */}
-            <div className="p-3.5 bg-slate-950 text-white rounded-xl">
-              <span className="text-[11px] text-slate-400 block font-medium">총 매출합계</span>
-              <span className="text-sm sm:text-base font-bold font-mono text-white mt-1 block">
+            {/* 총 매출 */}
+            <div className="p-3.5 bg-blue-600 text-white rounded-xl shadow-sm">
+              <span className="text-[11px] text-blue-100 block font-medium">총 매출</span>
+              <span className="text-sm sm:text-base font-bold font-mono mt-1 block">
                 {formatCurrency(salesTotal)}
               </span>
             </div>
 
             {/* 매입 세금계산서 합 */}
-            <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl">
-              <span className="text-[11px] text-slate-500 block font-medium">매입 세금계산서</span>
+            <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
+              <span className="text-[11px] text-slate-600 block font-medium">매입 세금계산서</span>
               <span className="text-sm sm:text-base font-bold font-mono text-slate-900 mt-1 block">
                 {formatCurrency(purchaseTaxSum)}
               </span>
             </div>
 
             {/* 매입 카드 합 */}
-            <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl">
-              <span className="text-[11px] text-slate-500 block font-medium">매입 신용카드</span>
+            <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
+              <span className="text-[11px] text-slate-600 block font-medium">매입 신용카드</span>
               <span className="text-sm sm:text-base font-bold font-mono text-slate-900 mt-1 block">
                 {formatCurrency(purchaseCardSum)}
               </span>
             </div>
 
-            {/* 매출/매입 차액 */}
-            <div className="p-3.5 bg-rose-50/80 border border-rose-100 rounded-xl">
-              <span className="text-[11px] text-rose-600 block font-medium">매출 - 매입 차액</span>
-              <span className={`text-sm sm:text-base font-bold font-mono mt-1 block ${difference < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
-                {difference > 0 ? `+${formatCurrency(difference)}` : formatCurrency(difference)}
+            {/* 총 매입 */}
+            <div className="p-3.5 bg-slate-900 text-white rounded-xl shadow-sm">
+              <span className="text-[11px] text-slate-300 block font-medium">총 매입</span>
+              <span className="text-sm sm:text-base font-bold font-mono mt-1 block">
+                {formatCurrency(purchaseTotal)}
               </span>
             </div>
           </div>
 
-          {/* 매출 vs 매입 비교 바 차트 */}
-          <div className="mt-6 space-y-3 pt-4 border-t border-slate-100">
-            <span className="text-xs font-bold text-slate-900 block">매출 vs 매입 규모 비교</span>
+          {/* 하단 차액 카드 */}
+          <div className="mt-4 p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center justify-between">
+            <div>
+              <span className="text-xs font-semibold text-slate-700 block">
+                매출 - 매입 차액 (부가세 과세표준 기준)
+              </span>
+              <span className="text-[11px] text-muted-foreground font-mono mt-0.5 block">
+                {formatCurrency(salesTotal)} - {formatCurrency(purchaseTotal)}
+              </span>
+            </div>
+            <div className="text-right">
+              <span
+                className={`text-lg font-black font-mono ${
+                  difference >= 0 ? 'text-blue-600' : 'text-rose-600'
+                }`}
+              >
+                {formatCurrency(difference)} 원
+              </span>
+              <span className="text-[10px] text-slate-400 block font-medium">
+                {difference >= 0 ? '매출 초과' : '매입 초과'}
+              </span>
+            </div>
+          </div>
+        </Card>
 
-            {/* 매출 바 */}
-            <div className="flex items-center gap-3 text-xs">
-              <span className="w-8 text-slate-500">매출</span>
-              <div className="flex-1 bg-slate-100 rounded-full h-6 relative overflow-hidden flex items-center">
-                <div
-                  className="bg-blue-600 h-full rounded-full transition-all flex items-center justify-end pr-3"
-                  style={{ width: salesBarWidth }}
-                >
-                  <span className="text-[10px] text-white font-mono font-bold">
-                    {formatCurrency(salesTotal)}
-                  </span>
-                </div>
+        {/* 매출 vs 매입 비율 비교 바 차트 */}
+        <Card className="shadow-sm border-slate-200 bg-white rounded-2xl p-6">
+          <h2 className="text-sm font-bold text-slate-900 mb-4">매출 vs 매입 비교</h2>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs">
+                <span className="font-semibold text-blue-600">총 매출</span>
+                <span className="font-mono font-bold text-slate-900">{formatCurrency(salesTotal)} 원</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-3">
+                <div className="bg-blue-600 h-3 rounded-full transition-all duration-500" style={{ width: salesBarWidth }} />
               </div>
             </div>
 
-            {/* 매입 바 */}
-            <div className="flex items-center gap-3 text-xs">
-              <span className="w-8 text-slate-500">매입</span>
-              <div className="flex-1 bg-slate-100 rounded-full h-6 relative overflow-hidden flex items-center">
-                <div
-                  className="bg-slate-900 h-full rounded-full transition-all flex items-center justify-end pr-3"
-                  style={{ width: purchaseBarWidth }}
-                >
-                  <span className="text-[10px] text-white font-mono font-bold">
-                    {formatCurrency(purchaseTotal)}
-                  </span>
-                </div>
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs">
+                <span className="font-semibold text-slate-800">총 매입</span>
+                <span className="font-mono font-bold text-slate-900">{formatCurrency(purchaseTotal)} 원</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-3">
+                <div className="bg-slate-900 h-3 rounded-full transition-all duration-500" style={{ width: purchaseBarWidth }} />
               </div>
             </div>
           </div>
         </Card>
 
-        {/* 하단 저장된 분기 리스트 카드 */}
+        {/* 저장된 분기 목록 */}
         <Card className="shadow-sm border-slate-200 bg-white rounded-2xl p-6">
-          <h2 className="text-sm font-bold text-slate-900 mb-3">저장된 분기 내역</h2>
-          <div className="space-y-3">
-            {[
-              { label: '26년 2분기(4~6월)', sales: 282909335, purchase: 291109477, diff: -8200142 },
-              { label: '26년 1분기(1~3월)', sales: 236935200, purchase: 232392339, diff: 4542861 },
-              { label: '25년 4분기(10~12월)', sales: 283225105, purchase: 254033283, diff: 29191822 },
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between"
-              >
-                <div>
-                  <span className="text-xs font-bold text-slate-800 block">{item.label}</span>
-                  <span className="text-[11px] text-slate-500 font-mono">
-                    매출 {formatCurrency(item.sales)} / 매입 {formatCurrency(item.purchase)}
-                  </span>
-                </div>
-                <span
-                  className={`text-sm font-mono font-bold ${
-                    item.diff < 0 ? 'text-rose-600' : 'text-emerald-600'
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold text-slate-900">저장된 분기 목록</h2>
+            <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-700">
+              {vatList.length}건
+            </Badge>
+          </div>
+          <div className="space-y-2">
+            {vatList.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-2 text-center">저장된 분기 데이터가 없습니다.</p>
+            ) : (
+              vatList.map((v) => (
+                <div
+                  key={v.id}
+                  onClick={() => {
+                    setYear(v.year);
+                    setQuarter(v.quarter);
+                  }}
+                  className={`p-3 rounded-xl border text-xs flex items-center justify-between cursor-pointer transition-colors ${
+                    v.year === year && v.quarter === quarter
+                      ? 'border-blue-500 bg-blue-50/50 font-semibold text-blue-900'
+                      : 'border-slate-100 bg-slate-50/50 hover:bg-slate-100 text-slate-700'
                   }`}
                 >
-                  {item.diff > 0 ? `+${formatCurrency(item.diff)}` : formatCurrency(item.diff)}
-                </span>
-              </div>
-            ))}
+                  <span>{v.title || `${v.year}년 ${v.quarter}분기`}</span>
+                  <span className="font-mono">{formatCurrency(v.salesTotal || 0)} 원</span>
+                </div>
+              ))
+            )}
           </div>
         </Card>
-
       </div>
     </div>
   );
