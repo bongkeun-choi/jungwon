@@ -10,7 +10,7 @@ import { AdminControlModal } from "@/components/admin-control-modal";
 import { PwaInstallButton } from "@/components/pwa-install-button";
 import { useClosingStore } from "@/hooks/use-closing";
 import { useAdminStore } from "@/hooks/use-admin";
-import { Lock, Settings, Calculator, Percent, ExternalLink, Sparkles } from "lucide-react";
+import { Lock, Settings, Calculator, Percent, ExternalLink } from "lucide-react";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState("monthly-view");
@@ -37,9 +37,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans selection:bg-blue-100">
-      {/* 1. 최상단 컴팩트 컨트롤 바 (마우스로 잡고 창 이동 가능 영역) */}
-      <header className="app-drag cursor-move bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-[0_1px_2px_rgba(0,0,0,0.03)] select-none">
-        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+      {/* 1. 최상단 컴팩트 컨트롤 바 (우측 시스템 버튼 겹침 방지 pr-28 확보) */}
+      <header className="app-drag cursor-move bg-white border-b border-slate-200 sticky top-0 z-30 shadow-[0_1px_2px_rgba(0,0,0,0.03)] select-none">
+        <div className="max-w-2xl mx-auto px-4 pr-12 sm:pr-4 h-16 flex items-center justify-between">
           {/* 로고 & 타이틀 */}
           <div className="flex items-center gap-2.5">
             <div className="h-9 w-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm shadow-blue-500/20">
@@ -95,22 +95,44 @@ export default function HomePage() {
       {/* 2. 메인 컨텐츠 영역 (컴팩트 밀착 뷰) */}
       <main className="max-w-xl w-full mx-auto px-3.5 py-3 flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
-          {/* 심플 탭 셀렉터 */}
-          <div className="flex items-center justify-center">
-            <TabsList className="bg-slate-200/70 p-1 rounded-xl h-10 inline-flex space-x-1 border border-slate-200">
+          {/* 상단 탭 바 + 본문 내 안전한 관리자 바로가기 버튼 */}
+          <div className="flex items-center justify-between bg-slate-200/70 p-1 rounded-2xl border border-slate-200 shadow-inner">
+            <TabsList className="bg-transparent p-0 h-9 inline-flex space-x-1">
               <TabsTrigger
                 value="monthly-view"
-                className="rounded-lg px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
+                className="rounded-xl px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
               >
                 <Calculator className="h-3.5 w-3.5" /> 월 마감 정산
               </TabsTrigger>
               <TabsTrigger
                 value="vat-view"
-                className="rounded-lg px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
+                className="rounded-xl px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
               >
                 <Percent className="h-3.5 w-3.5" /> 분기 부가세
               </TabsTrigger>
             </TabsList>
+
+            {/* 본문 내부 안전한 관리자 버튼 */}
+            <div className="pr-1">
+              {isAdmin ? (
+                <Button
+                  size="sm"
+                  onClick={openControlModal}
+                  className="h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm gap-1"
+                >
+                  <Settings className="h-3 w-3" /> 관리자
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={openDialog}
+                  className="h-8 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border-slate-300 text-xs font-bold shadow-sm gap-1"
+                >
+                  <Lock className="h-3 w-3 text-slate-500" /> 관리자
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* 1. 월 마감 조회 뷰어 */}
@@ -130,7 +152,7 @@ export default function HomePage() {
         본사 마감 관리 시스템 &bull; Turso Cloud DB 실시간 연동
       </footer>
 
-      {/* 관리자 로그인 비밀번호 다이얼로그 */}
+      {/* 관리자 로그인 비밀번호 모달 */}
       <AdminLoginDialog />
 
       {/* 관리자 전용 통합 제어 센터 팝업 모달 */}

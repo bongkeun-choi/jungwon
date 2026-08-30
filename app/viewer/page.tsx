@@ -23,8 +23,8 @@ export default function StandaloneViewerPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
-      {/* 1. 최상단 헤더 바 (전용 창에서도 뚜렷하게 보이는 상단 바) */}
-      <header className="app-drag cursor-move bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm select-none px-4 py-2.5 flex items-center justify-between">
+      {/* 1. 최상단 창 드래그 바 (우측 윈도우 최소화/최대화/닫기 버튼 공간 pr-32 완벽 확보) */}
+      <header className="app-drag cursor-move bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm select-none px-4 py-2.5 flex items-center justify-between pr-32">
         {/* 좌측 로고 & 타이틀 */}
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm">
@@ -36,7 +36,7 @@ export default function StandaloneViewerPage() {
           </div>
         </div>
 
-        {/* 우측 관리자 버튼 (선명한 녹색/파란색 버튼) */}
+        {/* 상단 헤더 관리자 버튼 (윈도우 닫기 버튼과 절대 겹치지 않게 pr-32 안쪽에 위치) */}
         <div className="app-no-drag cursor-default flex items-center gap-2">
           {isAdmin ? (
             <Button
@@ -56,7 +56,7 @@ export default function StandaloneViewerPage() {
               className="gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold h-8 px-3 shadow-sm"
             >
               <Lock className="h-3.5 w-3.5" />
-              관리자 로그인
+              관리자
             </Button>
           )}
         </div>
@@ -65,22 +65,44 @@ export default function StandaloneViewerPage() {
       {/* 2. 본문 컨텐츠 */}
       <main className="max-w-xl w-full mx-auto px-3.5 py-3 flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
-          {/* 심플 탭 셀렉터 */}
-          <div className="flex items-center justify-center">
-            <TabsList className="bg-slate-200/70 p-1 rounded-xl h-10 inline-flex space-x-1 border border-slate-200">
+          {/* 상단 탭 바 + 본문 내 안전한 관리자 버튼 배치 (2중 안전 장치!) */}
+          <div className="flex items-center justify-between bg-slate-200/70 p-1 rounded-2xl border border-slate-200 shadow-inner">
+            <TabsList className="bg-transparent p-0 h-9 inline-flex space-x-1">
               <TabsTrigger
                 value="monthly-view"
-                className="rounded-lg px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
+                className="rounded-xl px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
               >
                 <Calculator className="h-3.5 w-3.5" /> 월 마감 정산
               </TabsTrigger>
               <TabsTrigger
                 value="vat-view"
-                className="rounded-lg px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
+                className="rounded-xl px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
               >
                 <Percent className="h-3.5 w-3.5" /> 분기 부가세
               </TabsTrigger>
             </TabsList>
+
+            {/* 본문 내부 안전한 관리자 버튼 (윈도우 시스템 버튼과 절대 안 겹침!) */}
+            <div className="pr-1">
+              {isAdmin ? (
+                <Button
+                  size="sm"
+                  onClick={openControlModal}
+                  className="h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm gap-1"
+                >
+                  <Settings className="h-3 w-3" /> 관리자
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={openDialog}
+                  className="h-8 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border-slate-300 text-xs font-bold shadow-sm gap-1"
+                >
+                  <Lock className="h-3 w-3 text-slate-500" /> 관리자 로그인
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* 1. 월 마감 조회 뷰어 */}
