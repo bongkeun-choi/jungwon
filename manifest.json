@@ -1,23 +1,18 @@
 {
-  "name": "본사 마감 관리 시스템",
+  "name": "본사 마감 뷰어",
   "short_name": "본사마감",
-  "description": "본사 마감 정산, 분기 부가세, 통장 입금 대조 시스템",
-  "start_url": "/jungwon/",
+  "description": "본사 마감 정산 및 분기 부가세 전용 뷰어",
+  "start_url": "/jungwon/viewer/",
   "scope": "/jungwon/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#f8fafc",
   "theme_color": "#2563eb",
   "icons": [
     {
-      "src": "/jungwon/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/jungwon/icon-512.png",
+      "src": "/jungwon/icon.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]
