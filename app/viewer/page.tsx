@@ -7,23 +7,35 @@ import { MonthlyViewer } from "@/components/monthly-viewer";
 import { VatViewer } from "@/components/vat-viewer";
 import { AdminLoginDialog } from "@/components/admin-login-dialog";
 import { AdminControlModal } from "@/components/admin-control-modal";
+import { FontScaleControl } from "@/components/font-scale-control";
 import { useClosingStore } from "@/hooks/use-closing";
 import { useAdminStore } from "@/hooks/use-admin";
+import { useFontScaleStore } from "@/hooks/use-font-scale";
 import { Lock, Settings, Calculator, Percent } from "lucide-react";
 
 export default function StandaloneViewerPage() {
   const [activeTab, setActiveTab] = useState("monthly-view");
   const { fetchMonthlyList, fetchVatList } = useClosingStore();
   const { isAdmin, openDialog, isControlModalOpen, openControlModal, closeControlModal } = useAdminStore();
+  const { scale } = useFontScaleStore();
 
   useEffect(() => {
+    // 최초 데이터 로드
     fetchMonthlyList();
     fetchVatList();
+
+    // 1분(60초)마다 데이터 자동 동기화
+    const interval = setInterval(() => {
+      fetchMonthlyList();
+      fetchVatList();
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, [fetchMonthlyList, fetchVatList]);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
-      {/* 1. 최상단 창 드래그 타이틀 바 (불필요한 버튼 없이 깔끔하게 구성) */}
+      {/* 1. 최상단 창 드래그 타이틀 바 */}
       <header className="app-drag cursor-move bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm select-none px-4 py-2 flex items-center justify-between">
         {/* 좌측 로고 & 타이틀 */}
         <div className="flex items-center gap-2.5">
@@ -40,30 +52,35 @@ export default function StandaloneViewerPage() {
       {/* 2. 본문 컨텐츠 */}
       <main className="max-w-xl w-full mx-auto px-2.5 py-1.5 flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-2">
-          {/* 상단 탭 바 + 본문 내 안전한 관리자 버튼 배치 (2중 안전 장치!) */}
+          {/* 상단 탭 바 + 분기 부가세 옆 글씨 조절 (+/-) + 관리자 버튼 */}
           <div className="flex items-center justify-between bg-slate-200/70 p-1 rounded-2xl border border-slate-200 shadow-inner">
-            <TabsList className="bg-transparent p-0 h-9 inline-flex space-x-1">
-              <TabsTrigger
-                value="monthly-view"
-                className="rounded-xl px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
-              >
-                <Calculator className="h-3.5 w-3.5" /> 월 마감 정산
-              </TabsTrigger>
-              <TabsTrigger
-                value="vat-view"
-                className="rounded-xl px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
-              >
-                <Percent className="h-3.5 w-3.5" /> 분기 부가세
-              </TabsTrigger>
-            </TabsList>
+            <div className="flex items-center gap-1.5 overflow-x-auto">
+              <TabsList className="bg-transparent p-0 h-9 inline-flex space-x-1">
+                <TabsTrigger
+                  value="monthly-view"
+                  className="rounded-xl px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1 text-slate-600"
+                >
+                  <Calculator className="h-3.5 w-3.5" /> 월 마감 정산
+                </TabsTrigger>
+                <TabsTrigger
+                  value="vat-view"
+                  className="rounded-xl px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1 text-slate-600"
+                >
+                  <Percent className="h-3.5 w-3.5" /> 분기 부가세
+                </TabsTrigger>
+              </TabsList>
 
-            {/* 본문 내부 안전한 관리자 버튼 (윈도우 시스템 버튼과 절대 안 겹침!) */}
-            <div className="pr-1">
+              {/* 분기 부가세 바로 옆 글씨 크기 조절 (+ / -) 버튼 */}
+              <FontScaleControl />
+            </div>
+
+            {/* 관리자 모드 바로가기 버튼 */}
+            <div className="pr-0.5">
               {isAdmin ? (
                 <Button
                   size="sm"
                   onClick={openControlModal}
-                  className="h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm gap-1"
+                  className="h-8 px-2.5 sm:px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm gap-1"
                 >
                   <Settings className="h-3 w-3" /> 관리자
                 </Button>
@@ -72,27 +89,30 @@ export default function StandaloneViewerPage() {
                   size="sm"
                   variant="outline"
                   onClick={openDialog}
-                  className="h-8 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border-slate-300 text-xs font-bold shadow-sm gap-1"
+                  className="h-8 px-2.5 sm:px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border-slate-300 text-xs font-bold shadow-sm gap-1"
                 >
-                  <Lock className="h-3 w-3 text-slate-500" /> 관리자 로그인
+                  <Lock className="h-3 w-3 text-slate-500" /> 관리자
                 </Button>
               )}
             </div>
           </div>
 
-          {/* 1. 월 마감 조회 뷰어 */}
-          <TabsContent value="monthly-view" className="focus-visible:outline-none">
-            <MonthlyViewer />
-          </TabsContent>
+          {/* 뷰어 영역 (기기별 글씨 크기 scale 적용) */}
+          <div style={{ zoom: scale }}>
+            {/* 1. 월 마감 조회 뷰어 */}
+            <TabsContent value="monthly-view" className="focus-visible:outline-none m-0">
+              <MonthlyViewer />
+            </TabsContent>
 
-          {/* 2. 분기 부가세 조회 뷰어 */}
-          <TabsContent value="vat-view" className="focus-visible:outline-none">
-            <VatViewer />
-          </TabsContent>
+            {/* 2. 분기 부가세 조회 뷰어 */}
+            <TabsContent value="vat-view" className="focus-visible:outline-none m-0">
+              <VatViewer />
+            </TabsContent>
+          </div>
         </Tabs>
       </main>
 
-      {/* 관리자 로그인 비밀번호 모달 (1234) */}
+      {/* 관리자 로그인 비밀번호 모달 */}
       <AdminLoginDialog />
 
       {/* 관리자 전용 통합 제어 센터 팝업 모달 */}
