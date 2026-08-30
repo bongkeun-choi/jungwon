@@ -92,41 +92,41 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* 2. 메인 컨텐츠 영역 (딱 뷰어 내용만 중앙에 시원하게 배치) */}
-      <main className="max-w-2xl w-full mx-auto px-4 py-6 flex-1">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
+      {/* 2. 메인 컨텐츠 영역 (컴팩트 밀착 뷰) */}
+      <main className="max-w-xl w-full mx-auto px-3.5 py-3 flex-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
           {/* 심플 탭 셀렉터 */}
           <div className="flex items-center justify-center">
-            <TabsList className="bg-slate-200/70 p-1 rounded-2xl h-11 inline-flex space-x-1 border border-slate-200">
+            <TabsList className="bg-slate-200/70 p-1 rounded-xl h-10 inline-flex space-x-1 border border-slate-200">
               <TabsTrigger
                 value="monthly-view"
-                className="rounded-xl px-5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
+                className="rounded-lg px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
               >
-                <Calculator className="h-4 w-4" /> 월 마감 정산
+                <Calculator className="h-3.5 w-3.5" /> 월 마감 정산
               </TabsTrigger>
               <TabsTrigger
                 value="vat-view"
-                className="rounded-xl px-5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
+                className="rounded-lg px-4 py-1.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
               >
-                <Percent className="h-4 w-4" /> 분기 부가세
+                <Percent className="h-3.5 w-3.5" /> 분기 부가세
               </TabsTrigger>
             </TabsList>
           </div>
 
           {/* 1. 월 마감 조회 뷰어 */}
-          <TabsContent value="monthly-view" className="focus-visible:outline-none animate-in fade-in-50 duration-200">
+          <TabsContent value="monthly-view" className="focus-visible:outline-none">
             <MonthlyViewer />
           </TabsContent>
 
           {/* 2. 분기 부가세 조회 뷰어 */}
-          <TabsContent value="vat-view" className="focus-visible:outline-none animate-in fade-in-50 duration-200">
+          <TabsContent value="vat-view" className="focus-visible:outline-none">
             <VatViewer />
           </TabsContent>
         </Tabs>
       </main>
 
       {/* 3. 푸터 */}
-      <footer className="py-4 text-center text-[11px] text-slate-400 font-medium border-t border-slate-100">
+      <footer className="py-3 text-center text-[11px] text-slate-400 font-medium border-t border-slate-100">
         본사 마감 관리 시스템 &bull; Turso Cloud DB 실시간 연동
       </footer>
 

@@ -13,7 +13,7 @@ interface AdminState {
   closeControlModal: () => void;
 }
 
-const ADMIN_STORAGE_KEY = 'BONSA_ADMIN_AUTH';
+const ADMIN_AUTH_KEY = 'BONSA_ADMIN_LOGGED_IN';
 const ADMIN_PIN_CUSTOM_KEY = 'BONSA_ADMIN_PIN_CUSTOM';
 const DEFAULT_ADMIN_PIN = '1234';
 
@@ -29,7 +29,7 @@ function getStoredPin(): string {
 function getInitialAdminState(): boolean {
   if (typeof window === 'undefined') return false;
   try {
-    return sessionStorage.getItem(ADMIN_STORAGE_KEY) === 'true';
+    return localStorage.getItem(ADMIN_AUTH_KEY) === 'true';
   } catch {
     return false;
   }
@@ -42,9 +42,9 @@ export const useAdminStore = create<AdminState>((set) => ({
 
   login: (password: string) => {
     const currentPin = getStoredPin();
-    if (password === currentPin) {
+    if (password.trim() === currentPin.trim()) {
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem(ADMIN_STORAGE_KEY, 'true');
+        localStorage.setItem(ADMIN_AUTH_KEY, 'true');
       }
       set({ isAdmin: true, isDialogOpen: false, isControlModalOpen: true });
       return true;
@@ -54,21 +54,21 @@ export const useAdminStore = create<AdminState>((set) => ({
 
   logout: () => {
     if (typeof window !== 'undefined') {
-      sessionStorage.removeItem(ADMIN_STORAGE_KEY);
+      localStorage.removeItem(ADMIN_AUTH_KEY);
     }
-    set({ isAdmin: false, isControlModalOpen: false });
+    set({ isAdmin: false, isControlModalOpen: false, isDialogOpen: false });
   },
 
   changePassword: (oldPin: string, newPin: string) => {
     const currentPin = getStoredPin();
-    if (oldPin !== currentPin) {
+    if (oldPin.trim() !== currentPin.trim()) {
       return { success: false, message: '현재 비밀번호가 일치하지 않습니다.' };
     }
-    if (!newPin || newPin.length < 4) {
+    if (!newPin || newPin.trim().length < 4) {
       return { success: false, message: '새 비밀번호는 4자리 이상으로 설정해 주세요.' };
     }
     if (typeof window !== 'undefined') {
-      localStorage.setItem(ADMIN_PIN_CUSTOM_KEY, newPin);
+      localStorage.setItem(ADMIN_PIN_CUSTOM_KEY, newPin.trim());
     }
     return { success: true, message: '관리자 비밀번호가 성공적으로 변경되었습니다.' };
   },

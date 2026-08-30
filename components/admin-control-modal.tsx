@@ -29,7 +29,7 @@ export function AdminControlModal({
   onOpenChange: (open: boolean) => void;
 }) {
   const [activeTab, setActiveTab] = useState('monthly-edit');
-  const { logout } = useAdminStore();
+  const { logout, closeControlModal } = useAdminStore();
   const { fetchMonthlyList, fetchVatList } = useClosingStore();
 
   const handleLogout = () => {
@@ -46,7 +46,7 @@ export function AdminControlModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[92vh] flex flex-col p-0 rounded-3xl bg-slate-50 overflow-hidden border-slate-200">
+      <DialogContent className="max-w-5xl max-h-[92vh] flex flex-col p-0 rounded-3xl bg-slate-50 overflow-hidden border-slate-200 shadow-2xl">
         {/* 모달 상단 헤더 */}
         <div className="bg-white px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
