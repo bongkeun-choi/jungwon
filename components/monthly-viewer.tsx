@@ -86,28 +86,28 @@ export function MonthlyViewer() {
         </div>
       </div>
 
-      {/* 2. 대형 블루 그라데이션 정산 마감금액 카드 */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-blue-600 via-blue-600 to-indigo-700 text-white shadow-lg shadow-blue-500/15 relative overflow-hidden">
+      {/* 2. 블루 그라데이션 정산 마감금액 카드 (컴팩트 슬림 뷰) */}
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-600 via-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/15 relative overflow-hidden">
         <div className="flex items-center justify-between text-blue-100">
-          <span className="font-bold text-sm sm:text-base">정산 마감금액</span>
-          <span className="bg-white/20 text-white text-xs font-mono font-bold px-3 py-0.5 rounded-full">
+          <span className="font-bold text-xs sm:text-sm">정산 마감금액</span>
+          <span className="bg-white/20 text-white text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full">
             {String(selectedYear).slice(-2)}년 {String(selectedMonth).padStart(2, '0')}월
           </span>
         </div>
 
-        <div className="mt-2.5">
-          <span className="text-3xl sm:text-4xl lg:text-5xl font-black font-mono tracking-tight">
+        <div className="mt-1">
+          <span className="text-2xl sm:text-3xl font-black font-mono tracking-tight">
             {formatCurrency(closingAmount)}
           </span>
-          <span className="text-xl sm:text-2xl font-bold ml-1.5">원</span>
+          <span className="text-base sm:text-lg font-bold ml-1">원</span>
         </div>
 
         {/* 수식 시각화 */}
-        <div className="mt-4 pt-3 border-t border-white/20 text-xs font-mono text-blue-100 space-y-0.5 break-all">
-          <p className="font-bold text-white/95 tracking-wide text-xs">
+        <div className="mt-2 pt-2 border-t border-white/20 text-[11px] font-mono text-blue-100 space-y-0.5 break-all">
+          <p className="font-semibold text-white/90 tracking-tight text-[11px]">
             {formatCurrency(purchase)} - {formatCurrency(service)} - {formatCurrency(point)} - {formatCurrency(incentive)} - {formatCurrency(headquarters)}
           </p>
-          <p className="text-[11px] text-blue-200 font-sans">
+          <p className="text-[10px] text-blue-200 font-sans">
             매입금액 - 서비스 - 포인트 - 인센티브 - 본사입금
           </p>
         </div>
