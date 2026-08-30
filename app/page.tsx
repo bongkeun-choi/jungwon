@@ -10,7 +10,7 @@ import { AdminControlModal } from "@/components/admin-control-modal";
 import { PwaInstallButton } from "@/components/pwa-install-button";
 import { useClosingStore } from "@/hooks/use-closing";
 import { useAdminStore } from "@/hooks/use-admin";
-import { Lock, Settings, Calculator, Percent, ExternalLink } from "lucide-react";
+import { Lock, Settings, Calculator, Percent, ExternalLink, Sparkles } from "lucide-react";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState("monthly-view");
@@ -22,7 +22,7 @@ export default function HomePage() {
     fetchVatList();
   }, [fetchMonthlyList, fetchVatList]);
 
-  // 브라우저 주소창/도구모음 없는 전용 팝업 윈도우로 띄우기
+  // 브라우저 주소창/메뉴바가 전혀 없는 윈도우 팝업으로 띄우기
   const openStandaloneViewer = () => {
     const width = 540;
     const height = 920;
@@ -30,45 +30,42 @@ export default function HomePage() {
     const top = Math.max(0, (window.screen.height - height) / 2);
     window.open(
       '/jungwon/viewer/',
-      'BonsaMagamViewer',
+      'BonsaMagamViewerWindow',
       `width=${width},height=${height},top=${top},left=${left},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
     );
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
-      {/* 1. 최상단 글로벌 헤더 */}
-      <header className="border-b border-slate-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.02)] sticky top-0 z-30">
-        <div className="container mx-auto max-w-5xl px-4 sm:px-6 h-20 flex items-center justify-between">
-          {/* 좌측 로고 & 타이틀 */}
-          <div className="flex items-center gap-3">
-            <div className="h-11 w-11 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/25">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans selection:bg-blue-100">
+      {/* 1. 최상단 컴팩트 컨트롤 바 */}
+      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+          {/* 로고 & 타이틀 */}
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm shadow-blue-500/20">
               본
             </div>
             <div>
-              <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                본사 마감 관리 시스템
-              </h1>
-              <p className="text-[11px] text-slate-400 font-medium">
-                월마감 정산 &bull; 분기 부가세 &bull; 통장 입금 대조 &bull; 엑셀 서식 보존
-              </p>
+              <h1 className="text-sm font-bold text-slate-900 leading-tight">본사 마감 뷰어</h1>
+              <p className="text-[10px] text-slate-400 font-mono">국민 3001-9029-00536-1</p>
             </div>
           </div>
 
-          {/* 우측 도구: 전용 창 열기 + PWA 설치 + 관리자 버튼 */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* 독립 팝업 윈도우 열기 버튼 */}
+          {/* 우측 도구 모음 */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* 주소창 없는 전용 창 팝업 버튼 */}
             <Button
               variant="outline"
               size="sm"
               onClick={openStandaloneViewer}
-              className="gap-1.5 rounded-xl border-blue-200 bg-blue-50/50 text-blue-700 hover:bg-blue-100/70 text-xs font-semibold h-9 shadow-sm"
+              className="gap-1 rounded-xl border-blue-200 bg-blue-50/70 text-blue-700 hover:bg-blue-100 text-xs font-semibold h-8 px-2.5 shadow-sm"
+              title="브라우저 주소창 없는 전용 창으로 분리"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              전용 뷰어 창 띄우기
+              <span className="hidden sm:inline">전용창</span>
             </Button>
 
-            {/* 바탕화면 앱 설치 버튼 */}
+            {/* 바탕화면 앱 설치 (PWA) */}
             <PwaInstallButton />
 
             {/* 관리자 모드 버튼 */}
@@ -77,70 +74,60 @@ export default function HomePage() {
                 variant="default"
                 size="sm"
                 onClick={openControlModal}
-                className="gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold h-9 shadow-md shadow-emerald-500/20"
+                className="gap-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold h-8 px-3 shadow-sm"
               >
-                <Settings className="h-3.5 w-3.5" />
-                관리자 제어
+                <Settings className="h-3 w-3" /> 관리자
               </Button>
             ) : (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={openDialog}
-                className="gap-1.5 rounded-xl border-slate-300 text-xs font-semibold hover:bg-slate-50 text-slate-700 h-9 shadow-sm"
+                className="gap-1 rounded-xl border-slate-300 text-xs font-semibold hover:bg-slate-50 text-slate-700 h-8 px-3 shadow-sm"
               >
-                <Lock className="h-3.5 w-3.5 text-slate-500" />
-                관리자 모드
+                <Lock className="h-3 w-3 text-slate-500" /> 관리자
               </Button>
             )}
-
-            {/* 우측 계좌 안내 (헤더 미니 뱃지) */}
-            <div className="hidden lg:flex items-center gap-2 bg-slate-950 text-white px-3.5 py-1.5 rounded-xl shadow-sm border border-slate-800 text-xs">
-              <span className="text-slate-400 font-medium">지정 계좌</span>
-              <span className="font-bold font-mono text-amber-400 tracking-wide">
-                국민 3001-9029-00536-1
-              </span>
-            </div>
           </div>
         </div>
       </header>
 
-      {/* 2. 메인 컨테이너 */}
-      <main className="container mx-auto max-w-5xl px-4 sm:px-6 py-8 flex-1">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      {/* 2. 메인 컨텐츠 영역 (딱 뷰어 내용만 중앙에 시원하게 배치) */}
+      <main className="max-w-2xl w-full mx-auto px-4 py-6 flex-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
           {/* 심플 탭 셀렉터 */}
           <div className="flex items-center justify-center">
-            <TabsList className="bg-slate-200/70 p-1 rounded-2xl h-12 inline-flex space-x-1 border border-slate-200 shadow-inner">
+            <TabsList className="bg-slate-200/70 p-1 rounded-2xl h-11 inline-flex space-x-1 border border-slate-200">
               <TabsTrigger
                 value="monthly-view"
-                className="rounded-xl px-6 py-2.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-2 text-slate-600"
+                className="rounded-xl px-5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
               >
                 <Calculator className="h-4 w-4" /> 월 마감 정산
               </TabsTrigger>
               <TabsTrigger
                 value="vat-view"
-                className="rounded-xl px-6 py-2.5 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-2 text-slate-600"
+                className="rounded-xl px-5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 text-slate-600"
               >
-                <Percent className="h-4 w-4" /> 분기 부가세 신고
+                <Percent className="h-4 w-4" /> 분기 부가세
               </TabsTrigger>
             </TabsList>
           </div>
 
-          {/* 1. 월 마감 조회 뷰어 (첨부 이미지 1 화면) */}
-          <TabsContent value="monthly-view" className="focus-visible:outline-none animate-in fade-in-50 duration-300">
+          {/* 1. 월 마감 조회 뷰어 */}
+          <TabsContent value="monthly-view" className="focus-visible:outline-none animate-in fade-in-50 duration-200">
             <MonthlyViewer />
           </TabsContent>
 
-          {/* 2. 분기 부가세 조회 뷰어 (첨부 이미지 2 화면) */}
-          <TabsContent value="vat-view" className="focus-visible:outline-none animate-in fade-in-50 duration-300">
+          {/* 2. 분기 부가세 조회 뷰어 */}
+          <TabsContent value="vat-view" className="focus-visible:outline-none animate-in fade-in-50 duration-200">
             <VatViewer />
           </TabsContent>
         </Tabs>
       </main>
 
       {/* 3. 푸터 */}
-      <footer className="py-6 text-center text-xs text-slate-400 font-medium border-t border-slate-100">
-        본사 마감 관리 시스템 &bull; 원본 엑셀 서식 100% 보존 &bull; Turso Cloud DB 연동 &bull; PWA 바탕화면 앱 지원
+      <footer className="py-4 text-center text-[11px] text-slate-400 font-medium border-t border-slate-100">
+        본사 마감 관리 시스템 &bull; Turso Cloud DB 실시간 연동
       </footer>
 
       {/* 관리자 로그인 비밀번호 다이얼로그 */}
