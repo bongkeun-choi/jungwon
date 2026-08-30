@@ -15,9 +15,10 @@ import { VatCalculator } from '@/components/vat-calculator';
 import { ExcelUploader } from '@/components/excel-uploader';
 import { DashboardView } from '@/components/dashboard-view';
 import { HistoryTable } from '@/components/history-table';
+import { AdminPasswordTab } from '@/components/admin-password-tab';
 import { useAdminStore } from '@/hooks/use-admin';
 import { useClosingStore } from '@/hooks/use-closing';
-import { ShieldCheck, LogOut, FileSpreadsheet, Calculator, Percent, BarChart3, History, X } from 'lucide-react';
+import { ShieldCheck, LogOut, FileSpreadsheet, Calculator, Percent, BarChart3, History, KeyRound, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function AdminControlModal({
@@ -60,7 +61,7 @@ export function AdminControlModal({
                 </span>
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500">
-                수치 직접 수정, 엑셀 파일 업로드, 부가세 정산 및 이력을 관리합니다.
+                수치 직접 수정, 엑셀 파일 업로드, 부가세 정산, 비밀번호 변경 및 이력을 관리합니다.
               </DialogDescription>
             </div>
           </div>
@@ -119,6 +120,12 @@ export function AdminControlModal({
               >
                 <History className="h-4 w-4 text-slate-700" /> 전체 히스토리
               </TabsTrigger>
+              <TabsTrigger
+                value="password"
+                className="rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all gap-1.5"
+              >
+                <KeyRound className="h-4 w-4 text-amber-500" /> 비번 변경
+              </TabsTrigger>
             </TabsList>
 
             {/* 1. 월마감 수정 */}
@@ -144,6 +151,11 @@ export function AdminControlModal({
             {/* 5. 전체 히스토리 */}
             <TabsContent value="history" className="focus-visible:outline-none">
               <HistoryTable onSelectEdit={() => setActiveTab('monthly-edit')} />
+            </TabsContent>
+
+            {/* 6. 비밀번호 변경 */}
+            <TabsContent value="password" className="focus-visible:outline-none">
+              <AdminPasswordTab />
             </TabsContent>
           </Tabs>
         </div>

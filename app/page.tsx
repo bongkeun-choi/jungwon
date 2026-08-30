@@ -10,7 +10,7 @@ import { AdminControlModal } from "@/components/admin-control-modal";
 import { PwaInstallButton } from "@/components/pwa-install-button";
 import { useClosingStore } from "@/hooks/use-closing";
 import { useAdminStore } from "@/hooks/use-admin";
-import { Lock, Settings, Calculator, Percent } from "lucide-react";
+import { Lock, Settings, Calculator, Percent, ExternalLink } from "lucide-react";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState("monthly-view");
@@ -21,6 +21,19 @@ export default function HomePage() {
     fetchMonthlyList();
     fetchVatList();
   }, [fetchMonthlyList, fetchVatList]);
+
+  // 브라우저 주소창/도구모음 없는 전용 팝업 윈도우로 띄우기
+  const openStandaloneViewer = () => {
+    const width = 540;
+    const height = 920;
+    const left = Math.max(0, (window.screen.width - width) / 2);
+    const top = Math.max(0, (window.screen.height - height) / 2);
+    window.open(
+      '/jungwon/viewer/',
+      'BonsaMagamViewer',
+      `width=${width},height=${height},top=${top},left=${left},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
@@ -42,8 +55,19 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* 우측 도구: PWA 설치 + 관리자 버튼 + 입금계좌 */}
+          {/* 우측 도구: 전용 창 열기 + PWA 설치 + 관리자 버튼 */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* 독립 팝업 윈도우 열기 버튼 */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={openStandaloneViewer}
+              className="gap-1.5 rounded-xl border-blue-200 bg-blue-50/50 text-blue-700 hover:bg-blue-100/70 text-xs font-semibold h-9 shadow-sm"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              전용 뷰어 창 띄우기
+            </Button>
+
             {/* 바탕화면 앱 설치 버튼 */}
             <PwaInstallButton />
 
@@ -71,7 +95,7 @@ export default function HomePage() {
             )}
 
             {/* 우측 계좌 안내 (헤더 미니 뱃지) */}
-            <div className="hidden md:flex items-center gap-2 bg-slate-950 text-white px-3.5 py-1.5 rounded-xl shadow-sm border border-slate-800 text-xs">
+            <div className="hidden lg:flex items-center gap-2 bg-slate-950 text-white px-3.5 py-1.5 rounded-xl shadow-sm border border-slate-800 text-xs">
               <span className="text-slate-400 font-medium">지정 계좌</span>
               <span className="font-bold font-mono text-amber-400 tracking-wide">
                 국민 3001-9029-00536-1
@@ -119,7 +143,7 @@ export default function HomePage() {
         본사 마감 관리 시스템 &bull; 원본 엑셀 서식 100% 보존 &bull; Turso Cloud DB 연동 &bull; PWA 바탕화면 앱 지원
       </footer>
 
-      {/* 관리자 로그인 비밀번호 다이얼로그 (1234) */}
+      {/* 관리자 로그인 비밀번호 다이얼로그 */}
       <AdminLoginDialog />
 
       {/* 관리자 전용 통합 제어 센터 팝업 모달 */}
