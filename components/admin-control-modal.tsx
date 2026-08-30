@@ -1,13 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { MonthlyCalculator } from '@/components/monthly-calculator';
@@ -32,6 +25,8 @@ export function AdminControlModal({
   const { logout, closeControlModal } = useAdminStore();
   const { fetchMonthlyList, fetchVatList } = useClosingStore();
 
+  if (!open) return null;
+
   const handleLogout = () => {
     logout();
     onOpenChange(false);
@@ -45,8 +40,14 @@ export function AdminControlModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[92vh] flex flex-col p-0 rounded-3xl bg-slate-50 overflow-hidden border-slate-200 shadow-2xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-sm animate-in fade-in-0 duration-200"
+      onClick={() => onOpenChange(false)}
+    >
+      <div
+        className="w-full max-w-5xl max-h-[92vh] flex flex-col bg-slate-50 rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* 모달 상단 헤더 */}
         <div className="bg-white px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -54,15 +55,15 @@ export function AdminControlModal({
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <DialogTitle className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
                 관리자 제어 센터
-                <span className="text-[11px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                  인증 완료
+                <span className="text-[11px] font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
+                  관리자 인증됨
                 </span>
-              </DialogTitle>
-              <DialogDescription className="text-xs text-slate-500">
+              </h2>
+              <p className="text-xs text-slate-500">
                 수치 직접 수정, 엑셀 파일 업로드, 부가세 정산, 비밀번호 변경 및 이력을 관리합니다.
-              </DialogDescription>
+              </p>
             </div>
           </div>
 
@@ -71,7 +72,7 @@ export function AdminControlModal({
               variant="outline"
               size="sm"
               onClick={handleLogout}
-              className="gap-1.5 rounded-xl border-slate-300 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-9"
+              className="gap-1.5 rounded-xl border-slate-300 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-9 font-semibold"
             >
               <LogOut className="h-3.5 w-3.5" /> 로그아웃
             </Button>
@@ -87,7 +88,7 @@ export function AdminControlModal({
         </div>
 
         {/* 탭 네비게이션 및 본문 스크롤 영역 */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="bg-slate-200/70 p-1 rounded-2xl h-11 inline-flex space-x-1 w-full sm:w-auto overflow-x-auto">
               <TabsTrigger
@@ -159,7 +160,7 @@ export function AdminControlModal({
             </TabsContent>
           </Tabs>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
