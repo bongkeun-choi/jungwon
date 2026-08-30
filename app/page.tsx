@@ -67,27 +67,6 @@ export default function HomePage() {
 
             {/* 바탕화면 앱 설치 (PWA) */}
             <PwaInstallButton />
-
-            {/* 관리자 모드 버튼 */}
-            {isAdmin ? (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={openControlModal}
-                className="gap-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold h-8 px-3 shadow-sm"
-              >
-                <Settings className="h-3 w-3" /> 관리자
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={openDialog}
-                className="gap-1 rounded-xl border-slate-300 text-xs font-semibold hover:bg-slate-50 text-slate-700 h-8 px-3 shadow-sm"
-              >
-                <Lock className="h-3 w-3 text-slate-500" /> 관리자
-              </Button>
-            )}
           </div>
         </div>
       </header>

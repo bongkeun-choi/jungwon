@@ -23,42 +23,17 @@ export default function StandaloneViewerPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
-      {/* 1. 최상단 창 드래그 바 (우측 윈도우 최소화/최대화/닫기 버튼 공간 pr-32 완벽 확보) */}
-      <header className="app-drag cursor-move bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm select-none px-4 py-2.5 flex items-center justify-between pr-32">
+      {/* 1. 최상단 창 드래그 타이틀 바 (불필요한 버튼 없이 깔끔하게 구성) */}
+      <header className="app-drag cursor-move bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm select-none px-4 py-2 flex items-center justify-between">
         {/* 좌측 로고 & 타이틀 */}
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm">
+          <div className="h-7 w-7 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-sm">
             본
           </div>
           <div>
             <h1 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">본사 마감 뷰어</h1>
             <p className="text-[10px] text-slate-400 font-mono">국민 3001-9029-00536-1</p>
           </div>
-        </div>
-
-        {/* 상단 헤더 관리자 버튼 (윈도우 닫기 버튼과 절대 겹치지 않게 pr-32 안쪽에 위치) */}
-        <div className="app-no-drag cursor-default flex items-center gap-2">
-          {isAdmin ? (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={openControlModal}
-              className="gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold h-8 px-3 shadow-sm"
-            >
-              <Settings className="h-3.5 w-3.5" />
-              관리자 제어
-            </Button>
-          ) : (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={openDialog}
-              className="gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold h-8 px-3 shadow-sm"
-            >
-              <Lock className="h-3.5 w-3.5" />
-              관리자
-            </Button>
-          )}
         </div>
       </header>
 
