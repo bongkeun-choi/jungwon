@@ -9,8 +9,22 @@ import { Calendar } from 'lucide-react';
 
 export function VatViewer() {
   const { vatList } = useClosingStore();
-  const [selectedYear, setSelectedYear] = useState<number>(2026);
-  const [selectedQuarter, setSelectedQuarter] = useState<number>(2);
+  
+  // 현재 실제 날짜 기준 연도 및 분기 계산 (예: 9월 -> 3분기)
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
+
+  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
+  const [selectedQuarter, setSelectedQuarter] = useState<number>(currentQuarter);
+
+  React.useEffect(() => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const q = Math.floor(today.getMonth() / 3) + 1;
+    setSelectedYear(y);
+    setSelectedQuarter(q);
+  }, []);
 
   const quarterMonths = [selectedQuarter * 3 - 2, selectedQuarter * 3 - 1, selectedQuarter * 3];
 

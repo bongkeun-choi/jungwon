@@ -165,23 +165,28 @@ export const useClosingStore = create<StoreState>((set, get) => ({
   fetchMonthlyList: async () => {
     set({ isLoading: true });
     try {
-      // 1. Turso DB에서 직접 실시간 조회
       const tursoData = await getMonthlyFromTurso();
       if (tursoData && tursoData.length > 0) {
         set({ monthlyList: tursoData });
         saveLocal(LOCAL_KEY_MONTHLY, tursoData);
 
-        const latest = tursoData[0];
+        const now = new Date();
+        const curY = now.getFullYear();
+        const curM = now.getMonth() + 1;
+
+        // 현재 날짜(연/월)와 일치하는 데이터가 있으면 우선 설정, 없으면 목록의 첫 번째(최신) 데이터 설정
+        const match = tursoData.find((d: any) => d.year === curY && d.month === curM) || tursoData[0];
+
         set({
           currentMonthly: {
-            year: latest.year,
-            month: latest.month,
-            purchaseAmount: latest.purchaseAmount,
-            serviceAs: latest.serviceAs,
-            point: latest.point,
-            incentive: latest.incentive,
-            headquartersDeposit: latest.headquartersDeposit,
-            accounts: latest.accounts || [],
+            year: match.year,
+            month: match.month,
+            purchaseAmount: match.purchaseAmount,
+            serviceAs: match.serviceAs,
+            point: match.point,
+            incentive: match.incentive,
+            headquartersDeposit: match.headquartersDeposit,
+            accounts: match.accounts || [],
           },
         });
         return;

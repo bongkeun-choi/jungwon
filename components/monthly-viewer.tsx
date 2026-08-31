@@ -10,8 +10,27 @@ import { Calendar } from 'lucide-react';
 
 export function MonthlyViewer() {
   const { currentMonthly, setCurrentMonthly, monthlyList } = useClosingStore();
-  const [selectedYear, setSelectedYear] = useState<number>(currentMonthly.year || 2026);
-  const [selectedMonth, setSelectedMonth] = useState<number>(currentMonthly.month || 8);
+  
+  // 현재 실제 날짜 기준 (예: 2026년 9월 1일이면 2026년, 9월)
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  const [selectedYear, setSelectedYear] = useState<number>(currentMonthly.year || currentYear);
+  const [selectedMonth, setSelectedMonth] = useState<number>(currentMonthly.month || currentMonth);
+
+  // 마운트 시 현재 날짜 기준으로 초기화
+  React.useEffect(() => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = today.getMonth() + 1;
+    setSelectedYear(y);
+    setSelectedMonth(m);
+    const found = monthlyList.find((item) => item.year === y && item.month === m);
+    if (found) {
+      setCurrentMonthly(found);
+    }
+  }, [monthlyList, setCurrentMonthly]);
 
   // 선택된 연/월에 해당하는 데이터 찾기
   const activeData = monthlyList.find(
