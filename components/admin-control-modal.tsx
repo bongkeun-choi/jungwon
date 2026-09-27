@@ -90,40 +90,40 @@ export function AdminControlModal({
         {/* 탭 네비게이션 및 본문 스크롤 영역 */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="bg-slate-200/70 p-1 rounded-2xl h-11 inline-flex space-x-1 w-full sm:w-auto overflow-x-auto">
+            <TabsList className="bg-slate-200/80 p-1.5 rounded-2xl h-auto flex flex-wrap gap-1.5 w-full justify-start">
               <TabsTrigger
                 value="monthly-edit"
-                className="rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all gap-1.5"
+                className="rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all gap-1.5 flex-1 sm:flex-none justify-center"
               >
                 <Calculator className="h-4 w-4 text-blue-600" /> 월마감 수정
               </TabsTrigger>
               <TabsTrigger
                 value="vat-edit"
-                className="rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all gap-1.5"
+                className="rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm transition-all gap-1.5 flex-1 sm:flex-none justify-center"
               >
                 <Percent className="h-4 w-4 text-emerald-600" /> 부가세 수정
               </TabsTrigger>
               <TabsTrigger
                 value="upload"
-                className="rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all gap-1.5"
+                className="rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-amber-600 data-[state=active]:shadow-sm transition-all gap-1.5 flex-1 sm:flex-none justify-center"
               >
                 <FileSpreadsheet className="h-4 w-4 text-amber-600" /> 엑셀 업로드
               </TabsTrigger>
               <TabsTrigger
                 value="dashboard"
-                className="rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all gap-1.5"
+                className="rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-purple-600 data-[state=active]:shadow-sm transition-all gap-1.5 flex-1 sm:flex-none justify-center"
               >
                 <BarChart3 className="h-4 w-4 text-purple-600" /> 대시보드
               </TabsTrigger>
               <TabsTrigger
                 value="history"
-                className="rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all gap-1.5"
+                className="rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all gap-1.5 flex-1 sm:flex-none justify-center"
               >
                 <History className="h-4 w-4 text-slate-700" /> 전체 히스토리
               </TabsTrigger>
               <TabsTrigger
                 value="password"
-                className="rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all gap-1.5"
+                className="rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-amber-600 data-[state=active]:shadow-sm transition-all gap-1.5 flex-1 sm:flex-none justify-center"
               >
                 <KeyRound className="h-4 w-4 text-amber-500" /> 비번 변경
               </TabsTrigger>
